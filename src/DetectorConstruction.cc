@@ -1,31 +1,16 @@
 #include "DetectorConstruction.hh"
 
-#include "G4Orb.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PVPlacement.hh"
-#include "G4Material.hh"
-#include "G4NistManager.hh"
-
-struct ElementFraction {
-	G4String name;
-	G4double fraction;
-};
-
-G4double atm_density     = 1.225*kg/m3;
-G4double atm_pressure    = 1*atmosphere;
-G4double atm_temperature = 300*kelvin;
-ElementFraction atm_fractions[] = {
-	{"G4_N", 70.00},
-	{"G4_O", 20.00},
-	{"G4_C", 10.00}
-};
+#include <G4Orb.hh>
+#include <G4LogicalVolume.hh>
+#include <G4PVPlacement.hh>
+#include <G4Material.hh>
+#include <G4NistManager.hh>
 
 DetectorConstruction::DetectorConstruction(G4double radius)
 	: G4VUserDetectorConstruction(),fRadius(radius) {}
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
-	int fractions = 3;
-	G4Material* material = fractions==0 ? getVacuumMaterial() : getAtmosphereMaterial();
+	G4Material* material = getSpaceAir();
 	G4cout << "==================  Material  ==================" << G4endl;
 	G4cout << (*material) << G4endl;
 
@@ -48,31 +33,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 	return pWorld; // always return the root volume
 }
 
-G4Material * DetectorConstruction::getAtmosphereMaterial(unsigned int Nfractions) {
-	// Define materials via NIST manager
-	G4NistManager* nm = G4NistManager::Instance();
-	
-	// Calculate the total fraction. Used for normalization.
-	double totalfraction = 0.0;
-	for(unsigned int i=0; i < Nfractions; i++) {
-		totalfraction += atm_fractions[i].fraction;
-	}
-	
-	G4Material* solarmaterial = new G4Material(
-		"Air", atm_density, // name, density
-		Nfractions, kStateGas, // ncomponents, state
-		atm_temperature, atm_pressure // temperature, pressure
-	);
-	for(size_t i=0; i < Nfractions; i++) {
-		solarmaterial->AddMaterial(
-			nm->FindOrBuildMaterial(atm_fractions[i].name),
-			atm_fractions[i].fraction/totalfraction
-		);
-	}
-	
-	G4cout << "Atmosphere material - total fraction: " << totalfraction << G4endl;
-	
-	return solarmaterial;
+G4Material * DetectorConstruction::getSpaceAir(G4double temp, G4double pressure) {
+	return G4NistManager::Instance()->ConstructNewGasMaterial("SpaceAir", "G4_AIR", temp, pressure);
 }
 
 G4Material * DetectorConstruction::getVacuumMaterial() {

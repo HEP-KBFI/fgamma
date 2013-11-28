@@ -23,7 +23,6 @@ endif()
 # Setup include directory for this project
 # ---
 include(${Geant4_USE_FILE})
-include_directories(${PROJECT_SOURCE_DIR}/include)
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
@@ -32,8 +31,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 set(source_files
 	DetectorConstruction.cc
 	PrimaryGeneratorAction.cc
-)
-set(include_files
+	HistogrammingUserActions.cc
 )
 
 message(" > Sources...")
@@ -47,11 +45,9 @@ endforeach(source)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 # ---
-set(LIBRARIES
-	${Geant4_LIBRARIES}
-)
+set(LIBRARIES ${Geant4_LIBRARIES})
 
-add_executable(fgamma src/main.cc ${sources} ${headers})
+add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})
 
 

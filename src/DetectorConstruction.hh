@@ -1,7 +1,7 @@
 #ifndef DetectorConstruction_h
 #define DetectorConstruction_h
 
-#include "G4VUserDetectorConstruction.hh"
+#include <G4VUserDetectorConstruction.hh>
 
 class G4LogicalVolume;
 class G4Material;
@@ -18,8 +18,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 		G4double fRadius;
 		G4LogicalVolume* fWorldVolume;
 
-		static G4Material * getAtmosphereMaterial(unsigned int Nfractions=3);
 		static G4Material * getVacuumMaterial();
+		static G4Material * getSpaceAir(G4double temp=700.*kelvin, G4double pressure=1.*atmosphere);
 };
 #endif
 

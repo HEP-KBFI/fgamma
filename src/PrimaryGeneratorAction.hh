@@ -1,9 +1,8 @@
 #ifndef PrimaryGeneratorAction_h
 #define PrimaryGeneratorAction_h
 
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "G4ThreeVector.hh"
-#include "globals.hh"
+#include <globals.hh>
+#include <G4VUserPrimaryGeneratorAction.hh>
 
 class G4ParticleGun;
 class G4Event;
@@ -12,9 +11,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 	public:
 		PrimaryGeneratorAction(
 			G4int pid,
-			G4double dm_mass,
-			G4ThreeVector position= G4ThreeVector(0,0,0),
-			G4ThreeVector momentumDirection = G4ThreeVector(0,0,1)
+			G4double dm_mass
 		);
 		~PrimaryGeneratorAction();
 

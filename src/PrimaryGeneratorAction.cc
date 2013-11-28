@@ -1,15 +1,17 @@
 #include "PrimaryGeneratorAction.hh"
 
-#include "G4Event.hh"
-#include "G4ParticleGun.hh"
-#include "G4ParticleTable.hh"
+#include <G4Event.hh>
+#include <G4ParticleGun.hh>
+#include <G4ParticleTable.hh>
+#include <G4ThreeVector.hh>
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(
 	G4int pid,
-	G4double dm_mass,
-	G4ThreeVector position,
-	G4ThreeVector momentumDirection
+	G4double dm_mass
 ) : G4VUserPrimaryGeneratorAction() {
+	G4ThreeVector position= G4ThreeVector(0,0,0);
+	G4ThreeVector momentumDirection = G4ThreeVector(0,0,1);
+
 	G4int nofParticles = 1;
 	fPGun = new G4ParticleGun(nofParticles);
 
