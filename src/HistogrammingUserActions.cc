@@ -36,6 +36,9 @@ Histogrammer::Histogrammer(std::ostream &evstream) :
 	for(unsigned int i=0; i<hE->n+1; i++) {
 		G4cout << i << ' ' << hE->range[i] << G4endl;
 	}
+
+	// Write the header of the events CSV file
+	event_stream << "event,pid,name,E,theta,phi" << G4endl;
 }
 
 Histogrammer::~Histogrammer() {
