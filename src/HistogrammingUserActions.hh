@@ -9,6 +9,8 @@
 #include <G4Event.hh>
 #include <G4Step.hh>
 
+#include <gsl/gsl_histogram.h>
+
 struct UserActionsInterface {
 	virtual void step(const G4Step * step) = 0;
 	virtual void event(const G4Event * ev) = 0;
@@ -23,8 +25,13 @@ class Histogrammer : private UserActionsInterface {
 
 	std::ostream &event_stream;
 
+	gsl_histogram * hE;
+
 	public:
 		Histogrammer(std::ostream &evstream);
+		~Histogrammer();
+
+		void saveHistograms();
 
 		G4UserSteppingAction * getUserSteppingAction();
 		G4UserEventAction * getUserEventAction();

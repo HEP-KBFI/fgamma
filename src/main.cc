@@ -39,6 +39,9 @@ int main(int argc, char * argv[]) {
 	// start a run
 	runManager->BeamOn(3);
 
+	// store histograms
+	hists.saveHistograms();
+
 	// job termination
 	delete runManager;
 	return 0;

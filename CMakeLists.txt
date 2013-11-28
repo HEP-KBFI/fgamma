@@ -25,6 +25,13 @@ endif()
 include(${Geant4_USE_FILE})
 
 #----------------------------------------------------------------------------
+# Load the GSL library
+# ---
+#include(FindGSL.cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
+find_package(GSL REQUIRED)
+
+#----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
 # ---
@@ -45,7 +52,7 @@ endforeach(source)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 # ---
-set(LIBRARIES ${Geant4_LIBRARIES})
+set(LIBRARIES ${Geant4_LIBRARIES} ${GSL_LIBRARIES})
 
 add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})

@@ -29,6 +29,17 @@ Histogrammer::Histogrammer(std::ostream &evstream) :
 {
 	userSteppingAction = new HistUserSteppingAction(this);
 	userEventAction = new HistUserEventAction(this);
+
+	hE = gsl_histogram_alloc(10);
+	double rngs[] = {0,1e-3,1e-2,1e-1,1e0,1e1,1e2,1e3,1e4,1e5,1e6};
+	gsl_histogram_set_ranges(hE, rngs, 11);
+	for(unsigned int i=0; i<hE->n+1; i++) {
+		G4cout << i << ' ' << hE->range[i] << G4endl;
+	}
+}
+
+Histogrammer::~Histogrammer() {
+	gsl_histogram_free(hE);
 }
 
 G4UserSteppingAction * Histogrammer::getUserSteppingAction() {
@@ -62,4 +73,21 @@ void Histogrammer::step(const G4Step * step) {
 
 	event_stream << evid << ',' << pid << ',' << name << ','
 	             << E << ',' << theta << ',' << phi << G4endl;
+
+	// update the histogram
+	gsl_histogram_increment(hE, E);
+}
+
+void Histogrammer::saveHistograms() {
+	std::ofstream fout("histos.txt");
+	fout << hE->n << std::endl;
+	for(unsigned int i=0; i<hE->n+1; i++) {
+		fout << (i==0?"":" ") << hE->range[i];
+	}
+	fout << std::endl;
+	for(unsigned int i=0; i<hE->n; i++) {
+		fout << (i==0?"":" ") << hE->bin[i];
+	}
+	fout << std::endl;
+	fout.close();
 }
