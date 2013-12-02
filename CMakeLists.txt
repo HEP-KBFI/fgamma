@@ -39,6 +39,7 @@ set(source_files
 	DetectorConstruction.cc
 	PrimaryGeneratorAction.cc
 	HistogrammingUserActions.cc
+	CutoffStackingAction.cc
 )
 
 message(" > Sources...")

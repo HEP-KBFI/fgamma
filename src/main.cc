@@ -1,6 +1,7 @@
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "HistogrammingUserActions.hh"
+#include "CutoffStackingAction.hh"
 
 #include <G4RunManager.hh>
 #include <G4PhysListFactory.hh>
@@ -110,6 +111,9 @@ int main(int argc, char * argv[]) {
 	Histogrammer hists(eventfile);
 	runManager->SetUserAction(hists.getUserEventAction());
 	runManager->SetUserAction(hists.getUserSteppingAction());
+
+	std::ofstream trackfile("tracks.txt");
+	runManager->SetUserAction(new CutoffStackingAction(trackfile));
 
 	// initialize G4 kernel
 	runManager->Initialize();
