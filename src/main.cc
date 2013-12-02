@@ -66,7 +66,7 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 const argp argp_argp = {
 	argp_options,
 	&argp_parser,
-	"<ENERGY>",
+	"<ENERGY in GeV>",
 	"Simulation of gamma-rays produced in the atmosphere by cosmic rays.",
 	0, 0, 0
 };
