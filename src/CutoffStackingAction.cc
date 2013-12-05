@@ -13,12 +13,6 @@ G4ClassificationOfNewTrack CutoffStackingAction::ClassifyNewTrack(const G4Track*
 	            << "," << tr->GetParticleDefinition()->GetParticleName()
 	            << "," << tr->GetKineticEnergy()/MeV
 	            << G4endl;
-
-	if(tr->GetKineticEnergy() < 20*MeV) {
-		//G4cout << " ==> KILL" << G4endl;
-		//return fKill;
-	}
-
-	//G4cout << G4endl;
+	//return tr->GetKineticEnergy() < 20*MeV ? fKill : fUrgent;
 	return fUrgent;
 }
