@@ -49,6 +49,7 @@ UserActionManager::UserActionManager(std::ostream &evstream) :
 
 	// Write the header of the events CSV file
 	event_stream << "event,pid,name,E,theta,phi" << G4endl;
+	track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
 }
 
 UserActionManager::~UserActionManager() {
@@ -77,7 +78,8 @@ void UserActionManager::eventEnd(const G4Event*) {
 }
 
 G4ClassificationOfNewTrack UserActionManager::classifyTrack(const G4Track* tr) {
-	track_stream << tr->GetParentID() << "," << tr->GetTrackID()
+	track_stream << evid << ","
+	             << tr->GetParentID() << "," << tr->GetTrackID()
 	             << "," << tr->GetParticleDefinition()->GetPDGEncoding()
 	             << "," << tr->GetParticleDefinition()->GetParticleName()
 	             << "," << tr->GetKineticEnergy()/MeV
