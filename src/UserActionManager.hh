@@ -26,12 +26,11 @@ class UserActionManager : private UserActionsInterface {
 	G4UserStackingAction * userStackingAction;
 
 	G4int evid;
-	std::ostream &event_stream;
-	std::ofstream track_stream;
+	std::ofstream event_stream, track_stream;
 	gsl_histogram * hE;
 
 	public:
-		UserActionManager(std::ostream &evstream);
+		UserActionManager(bool store_tracks);
 		~UserActionManager();
 
 		void saveHistograms();

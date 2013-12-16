@@ -17,7 +17,8 @@
 const char* argp_program_version = "fgamma";
 
 // Codes for options without the short name.
-#define PC_SEED 1001
+#define PC_SEED  1001
+#define PC_TRCKS 1002
 
 // Program's arguments - an array of option specifiers
 // name, short name, arg. name, flags, doc, group
@@ -30,6 +31,7 @@ const argp_option argp_options[] = {
 		"set the seed for the random generators; if this is not"
 		" specified, time(0) is used)", 0},
 	{"runs", 'n', "N", 0, "run the simulation N times", 0},
+	{"tracks", PC_TRCKS, 0, 0, "store tracks in tracks.txt", 0},
 
 	{0, 0, 0, 0, "Options for tweaking the physics:", 2},
 	{"radius", 'r', "R", 0,
@@ -43,6 +45,7 @@ const argp_option argp_options[] = {
 int p_seed = 0;
 int p_runs = 1;
 G4double p_radius = 10.0*km;
+bool p_tracks = false;
 
 // Argument parser callback called by argp
 error_t argp_parser(int key, char *arg, struct argp_state*) {
@@ -55,6 +58,9 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 			break;
 		case PC_SEED:
 			p_seed = std::atoi(arg);
+			break;
+		case PC_TRCKS:
+			p_tracks = true;
 			break;
 		default:
 			return ARGP_ERR_UNKNOWN;
@@ -106,8 +112,7 @@ int main(int argc, char * argv[]) {
 	// set user actions
 	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy));
 
-	std::ofstream eventfile("events.txt");
-	UserActionManager uam(eventfile);
+	UserActionManager uam(p_tracks);
 	runManager->SetUserAction(uam.getUserEventAction());
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserStackingAction());
