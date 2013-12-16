@@ -39,7 +39,6 @@ set(source_files
 	DetectorConstruction.cc
 	PrimaryGeneratorAction.cc
 	UserActionManager.cc
-	CutoffStackingAction.cc
 )
 
 message(" > Sources...")

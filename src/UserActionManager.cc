@@ -21,14 +21,24 @@ class UAIUserEventAction : public G4UserEventAction {
 		void EndOfEventAction(const G4Event * ev) {uai->eventEnd(ev);}
 };
 
+class UAIUserStackingAction : public G4UserStackingAction {
+	UserActionsInterface * uai;
+	public:
+		UAIUserStackingAction(UserActionsInterface * uai) : uai(uai) {}
+		G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* tr) {
+			return uai->classifyTrack(tr);
+		}
+};
+
 // ---------------------------------------------------------------------
 //                    Histogrammer class
 // ---------------------------------------------------------------------
 UserActionManager::UserActionManager(std::ostream &evstream) :
-	evid(-1), event_stream(evstream)
+	evid(-1), event_stream(evstream), track_stream("tracks.txt")
 {
 	userSteppingAction = new UAIUserSteppingAction(this);
 	userEventAction = new UAIUserEventAction(this);
+	userStackingAction = new UAIUserStackingAction(this);
 
 	hE = gsl_histogram_alloc(10);
 	double rngs[] = {0,1e-3,1e-2,1e-1,1e0,1e1,1e2,1e3,1e4,1e5,1e6};
@@ -53,6 +63,10 @@ G4UserEventAction * UserActionManager::getUserEventAction() {
 	return userEventAction;
 }
 
+G4UserStackingAction * UserActionManager::getUserStackingAction() {
+	return userStackingAction;
+}
+
 void UserActionManager::event(const G4Event * ev) {
 	G4cout << "EVENT: " << ev->GetEventID() << G4endl;
 	evid = ev->GetEventID();
@@ -60,6 +74,16 @@ void UserActionManager::event(const G4Event * ev) {
 
 void UserActionManager::eventEnd(const G4Event*) {
 	evid = -1;
+}
+
+G4ClassificationOfNewTrack UserActionManager::classifyTrack(const G4Track* tr) {
+	track_stream << tr->GetParentID() << "," << tr->GetTrackID()
+	             << "," << tr->GetParticleDefinition()->GetPDGEncoding()
+	             << "," << tr->GetParticleDefinition()->GetParticleName()
+	             << "," << tr->GetKineticEnergy()/MeV
+	             << G4endl;
+	//return tr->GetKineticEnergy() < 20*MeV ? fKill : fUrgent;
+	return fUrgent;
 }
 
 void UserActionManager::step(const G4Step * step) {

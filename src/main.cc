@@ -1,7 +1,6 @@
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "UserActionManager.hh"
-#include "CutoffStackingAction.hh"
 
 #include <G4RunManager.hh>
 #include <G4PhysListFactory.hh>
@@ -111,9 +110,7 @@ int main(int argc, char * argv[]) {
 	UserActionManager uam(eventfile);
 	runManager->SetUserAction(uam.getUserEventAction());
 	runManager->SetUserAction(uam.getUserSteppingAction());
-
-	std::ofstream trackfile("tracks.txt");
-	runManager->SetUserAction(new CutoffStackingAction(trackfile));
+	runManager->SetUserAction(uam.getUserStackingAction());
 
 	// initialize G4 kernel
 	runManager->Initialize();
