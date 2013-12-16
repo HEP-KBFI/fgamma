@@ -38,7 +38,7 @@ find_package(GSL REQUIRED)
 set(source_files
 	DetectorConstruction.cc
 	PrimaryGeneratorAction.cc
-	HistogrammingUserActions.cc
+	UserActionManager.cc
 	CutoffStackingAction.cc
 )
 

@@ -1,5 +1,5 @@
-#ifndef HistogrammingUserActions_h
-#define HistogrammingUserActions_h
+#ifndef UserActionManager_h
+#define UserActionManager_h
 
 #include <fstream>
 
@@ -17,19 +17,17 @@ struct UserActionsInterface {
 	virtual void eventEnd(const G4Event * ev) = 0;
 };
 
-class Histogrammer : private UserActionsInterface {
+class UserActionManager : private UserActionsInterface {
 	G4UserSteppingAction * userSteppingAction;
 	G4UserEventAction * userEventAction;
 
 	G4int evid;
-
 	std::ostream &event_stream;
-
 	gsl_histogram * hE;
 
 	public:
-		Histogrammer(std::ostream &evstream);
-		~Histogrammer();
+		UserActionManager(std::ostream &evstream);
+		~UserActionManager();
 
 		void saveHistograms();
 

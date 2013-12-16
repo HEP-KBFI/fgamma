@@ -1,4 +1,4 @@
-#include "HistogrammingUserActions.hh"
+#include "UserActionManager.hh"
 
 #include <G4Gamma.hh>
 
@@ -6,17 +6,17 @@
 //                  Geant4 user action classes
 // ---------------------------------------------------------------------
 
-class HistUserSteppingAction : public G4UserSteppingAction {
+class UAIUserSteppingAction : public G4UserSteppingAction {
 	UserActionsInterface * uai;
 	public:
-		HistUserSteppingAction(UserActionsInterface * uai) : uai(uai) {}
+		UAIUserSteppingAction(UserActionsInterface * uai) : uai(uai) {}
 		void UserSteppingAction(const G4Step * step) {uai->step(step);}
 };
 
-class HistUserEventAction : public G4UserEventAction {
+class UAIUserEventAction : public G4UserEventAction {
 	UserActionsInterface * uai;
 	public:
-		HistUserEventAction(UserActionsInterface * uai) : uai(uai) {}
+		UAIUserEventAction(UserActionsInterface * uai) : uai(uai) {}
 		void BeginOfEventAction(const G4Event * ev) {uai->event(ev);}
 		void EndOfEventAction(const G4Event * ev) {uai->eventEnd(ev);}
 };
@@ -24,11 +24,11 @@ class HistUserEventAction : public G4UserEventAction {
 // ---------------------------------------------------------------------
 //                    Histogrammer class
 // ---------------------------------------------------------------------
-Histogrammer::Histogrammer(std::ostream &evstream) :
+UserActionManager::UserActionManager(std::ostream &evstream) :
 	evid(-1), event_stream(evstream)
 {
-	userSteppingAction = new HistUserSteppingAction(this);
-	userEventAction = new HistUserEventAction(this);
+	userSteppingAction = new UAIUserSteppingAction(this);
+	userEventAction = new UAIUserEventAction(this);
 
 	hE = gsl_histogram_alloc(10);
 	double rngs[] = {0,1e-3,1e-2,1e-1,1e0,1e1,1e2,1e3,1e4,1e5,1e6};
@@ -41,28 +41,28 @@ Histogrammer::Histogrammer(std::ostream &evstream) :
 	event_stream << "event,pid,name,E,theta,phi" << G4endl;
 }
 
-Histogrammer::~Histogrammer() {
+UserActionManager::~UserActionManager() {
 	gsl_histogram_free(hE);
 }
 
-G4UserSteppingAction * Histogrammer::getUserSteppingAction() {
+G4UserSteppingAction * UserActionManager::getUserSteppingAction() {
 	return userSteppingAction;
 }
 
-G4UserEventAction * Histogrammer::getUserEventAction() {
+G4UserEventAction * UserActionManager::getUserEventAction() {
 	return userEventAction;
 }
 
-void Histogrammer::event(const G4Event * ev) {
+void UserActionManager::event(const G4Event * ev) {
 	G4cout << "EVENT: " << ev->GetEventID() << G4endl;
 	evid = ev->GetEventID();
 }
 
-void Histogrammer::eventEnd(const G4Event*) {
+void UserActionManager::eventEnd(const G4Event*) {
 	evid = -1;
 }
 
-void Histogrammer::step(const G4Step * step) {
+void UserActionManager::step(const G4Step * step) {
 	if(step->GetPostStepPoint()->GetStepStatus() != fWorldBoundary ||
 	   step->GetTrack()->GetParticleDefinition() != G4Gamma::Definition()) {
 		return;
@@ -81,7 +81,7 @@ void Histogrammer::step(const G4Step * step) {
 	gsl_histogram_increment(hE, E);
 }
 
-void Histogrammer::saveHistograms() {
+void UserActionManager::saveHistograms() {
 	std::ofstream fout("histos.txt");
 	fout << hE->n << std::endl;
 	for(unsigned int i=0; i<hE->n+1; i++) {

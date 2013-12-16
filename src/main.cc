@@ -1,6 +1,6 @@
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
-#include "HistogrammingUserActions.hh"
+#include "UserActionManager.hh"
 #include "CutoffStackingAction.hh"
 
 #include <G4RunManager.hh>
@@ -108,9 +108,9 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy));
 
 	std::ofstream eventfile("events.txt");
-	Histogrammer hists(eventfile);
-	runManager->SetUserAction(hists.getUserEventAction());
-	runManager->SetUserAction(hists.getUserSteppingAction());
+	UserActionManager uam(eventfile);
+	runManager->SetUserAction(uam.getUserEventAction());
+	runManager->SetUserAction(uam.getUserSteppingAction());
 
 	std::ofstream trackfile("tracks.txt");
 	runManager->SetUserAction(new CutoffStackingAction(trackfile));
