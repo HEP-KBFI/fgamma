@@ -16,6 +16,7 @@ fgamma
 	  -n, --runs=N               run the simulation N times
 		  --seed=SEED            set the seed for the random generators; if this is
 								 not specified, time(0) is used)
+		  --tracks               store tracks in tracks.txt
 
 	 Options for tweaking the physics:
 	  -r, --radius=R             set the radius of the sphere in km (default is 10
