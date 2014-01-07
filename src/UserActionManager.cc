@@ -91,8 +91,8 @@ G4ClassificationOfNewTrack UserActionManager::classifyTrack(const G4Track* tr) {
 }
 
 void UserActionManager::step(const G4Step * step) {
-	if(step->GetPostStepPoint()->GetStepStatus() != fWorldBoundary ||
-	   step->GetTrack()->GetParticleDefinition() != G4Gamma::Definition()) {
+	//step->GetTrack()->GetParticleDefinition() != G4Gamma::Definition() // check gammas
+	if(step->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
 		return;
 	}
 
