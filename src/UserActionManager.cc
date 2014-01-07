@@ -53,6 +53,8 @@ UserActionManager::UserActionManager(bool store_tracks, G4String prefix) :
 }
 
 UserActionManager::~UserActionManager() {
+	track_stream.close();
+	event_stream.close();
 	gsl_histogram_free(hE);
 }
 
