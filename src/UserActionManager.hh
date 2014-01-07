@@ -30,7 +30,7 @@ class UserActionManager : private UserActionsInterface {
 	gsl_histogram * hE;
 
 	public:
-		UserActionManager(bool store_tracks);
+		UserActionManager(bool store_tracks, G4String prefix = "");
 		~UserActionManager();
 
 		void saveHistograms();

@@ -33,8 +33,8 @@ class UAIUserStackingAction : public G4UserStackingAction {
 // ---------------------------------------------------------------------
 //                    Histogrammer class
 // ---------------------------------------------------------------------
-UserActionManager::UserActionManager(bool store_tracks) :
-	evid(-1), event_stream("events.txt"), track_stream(store_tracks ? "tracks.txt" : "/dev/null")
+UserActionManager::UserActionManager(bool store_tracks, G4String prefix) :
+	evid(-1), event_stream((prefix+"events.txt").c_str()), track_stream(store_tracks ? (prefix+"tracks.txt").c_str() : "/dev/null")
 {
 	userSteppingAction = new UAIUserSteppingAction(this);
 	userEventAction = new UAIUserEventAction(this);

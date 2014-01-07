@@ -25,7 +25,7 @@ const char* argp_program_version = "fgamma";
 const argp_option argp_options[] = {
 	{0, 0, 0, 0, "General options:", 0},
 	//{"quiet", 'q', 0, 0, "reduce verbosity as much as possible", 0},
-	//{"ofile", 'o', "OFILE", 0, "write to OFILE; default is ???", 0},
+	{"prefix", 'o', "PREFIX", 0, "set the prefix of the output files", 0},
 
 	{"seed", PC_SEED, "SEED", 0,
 		"set the seed for the random generators; if this is not"
@@ -48,10 +48,14 @@ int p_runs = 1;
 G4double p_radius = 10.0*km;
 G4double p_pressure = 1;
 bool p_tracks = false;
+G4String p_prefix = "";
 
 // Argument parser callback called by argp
 error_t argp_parser(int key, char *arg, struct argp_state*) {
 	switch(key) {
+		case 'o':
+			p_prefix = arg;
+			break;
 		case 'n':
 			p_runs = std::atoi(arg);
 			break;
@@ -117,7 +121,7 @@ int main(int argc, char * argv[]) {
 	// set user actions
 	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy));
 
-	UserActionManager uam(p_tracks);
+	UserActionManager uam(p_tracks, p_prefix);
 	runManager->SetUserAction(uam.getUserEventAction());
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserStackingAction());
