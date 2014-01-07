@@ -36,6 +36,7 @@ const argp_option argp_options[] = {
 	{0, 0, 0, 0, "Options for tweaking the physics:", 2},
 	{"radius", 'r', "R", 0,
 		"set the radius of the sphere in km (default is 10 km)", 2},
+	{"pressure", 'p', "P", 0, "set the multiplier for the pressure", 2},
 
 	{0, 0, 0, 0, "Other:", -1},
 	{0, 0, 0, 0, 0, 0} // terminates the array
@@ -45,6 +46,7 @@ const argp_option argp_options[] = {
 int p_seed = 0;
 int p_runs = 1;
 G4double p_radius = 10.0*km;
+G4double p_pressure = 1;
 bool p_tracks = false;
 
 // Argument parser callback called by argp
@@ -55,6 +57,9 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 			break;
 		case 'r':
 			p_radius = std::atof(arg)*m;
+			break;
+		case 'p':
+			p_pressure = std::atof(arg);
 			break;
 		case PC_SEED:
 			p_seed = std::atoi(arg);
@@ -102,7 +107,7 @@ int main(int argc, char * argv[]) {
 	G4RunManager* runManager = new G4RunManager;
 
 	// set mandatory initialization classes
-	runManager->SetUserInitialization(new DetectorConstruction(p_radius));
+	runManager->SetUserInitialization(new DetectorConstruction(p_radius, p_pressure));
 
 	G4PhysListFactory factory;
 	factory.SetVerbose(0);

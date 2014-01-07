@@ -6,11 +6,11 @@
 #include <G4Material.hh>
 #include <G4NistManager.hh>
 
-DetectorConstruction::DetectorConstruction(G4double radius)
-	: G4VUserDetectorConstruction(),fRadius(radius) {}
+DetectorConstruction::DetectorConstruction(G4double radius, G4double pressurefactor)
+	: G4VUserDetectorConstruction(),fRadius(radius),fPressureFactor(pressurefactor) {}
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
-	G4Material* material = getSpaceAir();
+	G4Material* material = getSpaceAir(fPressureFactor);
 	G4cout << "==================  Material  ==================" << G4endl;
 	G4cout << (*material) << G4endl;
 
@@ -33,8 +33,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 	return pWorld; // always return the root volume
 }
 
-G4Material * DetectorConstruction::getSpaceAir(G4double temp, G4double pressure) {
-	return G4NistManager::Instance()->ConstructNewGasMaterial("SpaceAir", "G4_AIR", temp, pressure);
+G4Material * DetectorConstruction::getSpaceAir(G4double pressurefactor) {
+	G4double temp=700.*kelvin;
+	G4double pressure=1.*atmosphere;
+	return G4NistManager::Instance()->ConstructNewGasMaterial("SpaceAir", "G4_AIR", temp, pressurefactor*pressure);
 }
 
 G4Material * DetectorConstruction::getVacuumMaterial() {
