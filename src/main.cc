@@ -60,7 +60,7 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 			p_runs = std::atoi(arg);
 			break;
 		case 'r':
-			p_radius = std::atof(arg)*m;
+			p_radius = std::atof(arg)*km;
 			break;
 		case 'p':
 			p_pressure = std::atof(arg);
