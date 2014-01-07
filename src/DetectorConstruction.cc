@@ -10,15 +10,15 @@ DetectorConstruction::DetectorConstruction(G4double radius, G4double pressurefac
 	: G4VUserDetectorConstruction(),fRadius(radius),fPressureFactor(pressurefactor) {}
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
-	G4Material* material = getSpaceAir(fPressureFactor);
+	G4Material* fMaterial = getSpaceAir(fPressureFactor);
 	G4cout << "==================  Material  ==================" << G4endl;
-	G4cout << (*material) << G4endl;
+	G4cout << (*fMaterial) << G4endl;
 
 	// World
 	G4CSGSolid* sWorld = new G4Orb("World", fRadius);
 
 	// Logical World Volume. Arguments: // shape, material, name
-	fWorldVolume = new G4LogicalVolume(sWorld, material, "World");
+	fWorldVolume = new G4LogicalVolume(sWorld, fMaterial, "World");
 
 	G4VPhysicalVolume* pWorld = new G4PVPlacement(
 		0,                      // no rotation

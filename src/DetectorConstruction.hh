@@ -8,8 +8,10 @@ class G4Material;
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
 	public:
+		G4Material * fMaterial;
+	
 		// fractions == 0 implies vacuum
-		DetectorConstruction(G4double radius = 10e3*km, G4double pressurefactor = 1);
+		DetectorConstruction(G4double radius = 1e3*km, G4double pressurefactor = 1);
 
 		// methods from base class 
 		virtual G4VPhysicalVolume* Construct();
