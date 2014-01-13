@@ -6,6 +6,8 @@
 #include <G4Material.hh>
 #include <G4NistManager.hh>
 
+using namespace CLHEP;
+
 DetectorConstruction::DetectorConstruction(G4double radius, G4double pressurefactor)
 	: G4VUserDetectorConstruction(),fRadius(radius),fPressureFactor(pressurefactor) {}
 

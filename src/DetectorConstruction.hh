@@ -1,6 +1,7 @@
 #ifndef DetectorConstruction_h
 #define DetectorConstruction_h
 
+#include <CLHEP/Units/SystemOfUnits.h>
 #include <G4VUserDetectorConstruction.hh>
 
 class G4LogicalVolume;
@@ -11,7 +12,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 		G4Material * fMaterial;
 	
 		// fractions == 0 implies vacuum
-		DetectorConstruction(G4double radius = 1e3*km, G4double pressurefactor = 1);
+		DetectorConstruction(G4double radius = 1e3*CLHEP::km, G4double pressurefactor = 1);
 
 		// methods from base class 
 		virtual G4VPhysicalVolume* Construct();
