@@ -9,7 +9,7 @@ fgamma
 **Usage**
 
 	$ ./fgamma --help
-	Usage: fgamma [OPTION...] <ENERGY in GeV>
+	Usage: fgamma [OPTION...] ENERGY(GeV) INCIDENCE(pi/2)
 	Simulation of gamma-rays produced in the atmosphere by cosmic rays.
 
 	 General options:
@@ -18,6 +18,7 @@ fgamma
 		  --seed=SEED            set the seed for the random generators; if this is
 								 not specified, time(0) is used)
 		  --tracks               store tracks in tracks.txt
+	  -v, --vis                  open the GUI instead of running the simulation
 
 	 Options for tweaking the physics:
 	  -p, --pressure=P           set the multiplier for the pressure
