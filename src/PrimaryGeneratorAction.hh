@@ -10,8 +10,8 @@ class G4Event;
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 	public:
 		PrimaryGeneratorAction(
-			G4int pid,
-			G4double dm_mass
+			G4int pid, G4double E, // particle and total energy
+			G4double altitude, G4double incidence_angle
 		);
 		~PrimaryGeneratorAction();
 

@@ -6,16 +6,15 @@
 #include <G4ThreeVector.hh>
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(
-	G4int pid,
-	G4double dm_mass
+	G4int pid, G4double E, G4double altitude, G4double incidence_angle
 ) : G4VUserPrimaryGeneratorAction() {
-	G4ThreeVector position= G4ThreeVector(0,0,0);
-	G4ThreeVector momentumDirection = G4ThreeVector(0,0,1);
+	G4ThreeVector position= G4ThreeVector(0,0,altitude);
+	G4ThreeVector momentumDirection = G4ThreeVector(sin(incidence_angle),0,(-1)*cos(incidence_angle));
 
 	G4int nofParticles = 1;
 	fPGun = new G4ParticleGun(nofParticles);
 
-	double kin_energy_p1 = dm_mass - G4ParticleTable::GetParticleTable()->FindParticle(pid)->GetPDGMass();
+	double kin_energy_p1 = E - G4ParticleTable::GetParticleTable()->FindParticle(pid)->GetPDGMass();
 
 	// default particle kinematics
 	fPGun->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(pid) );

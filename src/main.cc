@@ -2,6 +2,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "UserActionManager.hh"
 
+#include "globals.hh"
 #include <G4RunManager.hh>
 #include <G4PhysListFactory.hh>
 #include <G4NistManager.hh>
@@ -53,7 +54,7 @@ const argp_option argp_options[] = {
 // Parameters
 int p_seed = 0;
 int p_runs = 1;
-G4double p_radius = 10.0*km;
+G4double p_radius = 6400*km;
 G4double p_pressure = 1;
 bool p_tracks = false;
 G4String p_prefix = "";
@@ -93,7 +94,7 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 const argp argp_argp = {
 	argp_options,
 	&argp_parser,
-	"<ENERGY in GeV>",
+	"ENERGY(GeV) INCIDENCE(pi/2)",
 	"Simulation of gamma-rays produced in the atmosphere by cosmic rays.",
 	0, 0, 0
 };
@@ -104,7 +105,7 @@ int main(int argc, char * argv[]) {
 	argp_parse(&argp_argp, argc, argv, 0, &argp_index, 0);
 
 	// the positional energy argument must be handled manually
-	if(argp_index+1 != argc) {
+	if(argp_index+2 != argc) {
 		G4cerr << "Too many or too few arguments!" << G4endl;
 		G4cout << " > argp_index = " << argp_index << G4endl;
 		G4cout << " > argc = " << argc << G4endl;
@@ -114,6 +115,7 @@ int main(int argc, char * argv[]) {
 		exit(-1);
 	}
 	G4double energy = atof(argv[argp_index])*GeV;
+	G4double incidence = atof(argv[argp_index+1]);
 	G4cout << "E_0 = " << energy/MeV << " MeV" << G4endl;
 
 	// print the table of materials
@@ -131,7 +133,7 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserInitialization(physicslist);
 
 	// set user actions
-	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy));
+	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy, p_radius, incidence*halfpi));
 
 	UserActionManager uam(p_tracks, p_prefix);
 	runManager->SetUserAction(uam.getUserEventAction());
