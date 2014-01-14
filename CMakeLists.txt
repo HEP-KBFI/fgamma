@@ -49,6 +49,8 @@ foreach(source ${source_files})
 	message(" > - ${source_full}")
 endforeach(source)
 
+configure_file(${PROJECT_SOURCE_DIR}/vis.mac ${PROJECT_BINARY_DIR}/vis.mac COPYONLY)
+
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 # ---
