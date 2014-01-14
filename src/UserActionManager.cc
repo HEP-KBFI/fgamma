@@ -88,8 +88,8 @@ G4ClassificationOfNewTrack UserActionManager::classifyTrack(const G4Track* tr) {
 	             << "," << tr->GetParticleDefinition()->GetParticleName()
 	             << "," << tr->GetKineticEnergy()/MeV
 	             << G4endl;
-	//return tr->GetKineticEnergy() < 20*MeV ? fKill : fUrgent;
-	return fUrgent;
+	return tr->GetKineticEnergy() < 20*MeV ? fKill : fUrgent;
+	//return fUrgent;
 }
 
 void UserActionManager::step(const G4Step * step) {
