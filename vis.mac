@@ -78,3 +78,8 @@
 #
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
+
+# Set up the inital view via /vis/viewer/set/* commands
+/vis/viewer/set/targetPoint 0 0 0 m
+/vis/viewer/set/upVector 0 0 1
+/vis/viewer/set/viewpointVector 0 -1 0
