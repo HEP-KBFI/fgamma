@@ -50,7 +50,7 @@ UserActionManager::UserActionManager(bool store_tracks, G4String prefix) :
 	}
 
 	// Write the header of the events CSV file
-	event_stream << "event,pid,name,E,theta,phi" << G4endl;
+	event_stream << "event,pid,name,E,x,y,z,theta,phi,px,py,pz,p_theta,p_phi" << G4endl;
 	track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
 }
 
@@ -98,14 +98,22 @@ void UserActionManager::step(const G4Step * step) {
 		return;
 	}
 
-	G4double E = step->GetTrack()->GetTotalEnergy()/MeV;
-	G4double theta = step->GetPostStepPoint()->GetPosition().theta();
-	G4double phi = step->GetPostStepPoint()->GetPosition().phi();
 	G4int pid = step->GetTrack()->GetParticleDefinition()->GetPDGEncoding();
 	G4String name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
 
-	event_stream << evid << ',' << pid << ',' << name << ','
-	             << E << ',' << theta << ',' << phi << G4endl;
+	G4double E = step->GetTrack()->GetTotalEnergy();
+	G4ThreeVector pos = step->GetPostStepPoint()->GetPosition();
+	G4ThreeVector pdir = step->GetTrack()->GetMomentumDirection();
+
+
+	event_stream << std::setw(5) << evid << ',' << std::setw(4) << pid << ',' << std::setw(12) << name
+	             << std::scientific << std::setprecision(10)
+	             << ',' << E/MeV
+	             << ',' << pos.x()/km << ',' << pos.y()/km << ',' << pos.z()/km
+	             << ',' << pos.theta() << ',' << pos.phi()
+	             << ',' << pdir.x() << ',' << pdir.y() << ',' << pdir.z()
+	             << ',' << pdir.theta() << ',' << pdir.phi()
+	             << G4endl;
 
 	// update the histogram
 	gsl_histogram_increment(hE, E);
