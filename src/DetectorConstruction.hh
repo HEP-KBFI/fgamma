@@ -9,7 +9,6 @@ class G4Material;
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
 	public:
-		// fractions == 0 implies vacuum
 		DetectorConstruction(G4double radius = 1e3*CLHEP::km);
 
 		// methods from base class 
