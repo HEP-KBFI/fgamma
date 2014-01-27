@@ -42,10 +42,5 @@ G4Material * DetectorConstruction::getSpaceAir(G4double pressurefactor) {
 }
 
 G4Material * DetectorConstruction::getVacuumMaterial() {
-	G4double vac_density     = universe_mean_density; //from PhysicalConstants.h
-	G4double vac_pressure    = 1.e-19*pascal;
-	G4double vac_temperature = 0.1*kelvin;
-	return new G4Material("Vacuum", 1., 1.01*g/mole,
-	                       vac_density, kStateGas, vac_temperature,
-	                       vac_pressure);
+	return G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
 }
