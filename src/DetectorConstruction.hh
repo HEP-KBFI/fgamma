@@ -12,17 +12,17 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 		G4Material * fMaterial;
 	
 		// fractions == 0 implies vacuum
-		DetectorConstruction(G4double radius = 1e3*CLHEP::km, G4double pressurefactor = 1);
+		DetectorConstruction(G4double radius = 1e3*CLHEP::km);
 
 		// methods from base class 
 		virtual G4VPhysicalVolume* Construct();
 
 	private:
-		G4double fRadius, fPressureFactor;
+		G4double fRadius;
 		G4LogicalVolume* fWorldVolume;
 
 		static G4Material * getVacuumMaterial();
-		static G4Material * getSpaceAir(G4double pressurefactor = 1);
+		static G4Material * getSpaceAir(G4double density, G4double temp);
 };
 #endif
 
