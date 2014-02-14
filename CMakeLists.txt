@@ -31,6 +31,8 @@ include(${Geant4_USE_FILE})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 find_package(GSL REQUIRED)
 
+find_package(YamlCpp REQUIRED)
+
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
@@ -54,7 +56,7 @@ configure_file(${PROJECT_SOURCE_DIR}/vis.mac ${PROJECT_BINARY_DIR}/vis.mac COPYO
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 # ---
-set(LIBRARIES ${Geant4_LIBRARIES} ${GSL_LIBRARIES})
+set(LIBRARIES ${Geant4_LIBRARIES} ${GSL_LIBRARIES} ${YAMLCPP_LIBRARY})
 
 add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})
