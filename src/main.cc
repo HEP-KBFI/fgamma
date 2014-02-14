@@ -135,6 +135,8 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserStackingAction());
 
+	G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+
 	// initialize G4 kernel
 	runManager->Initialize();
 	CLHEP::HepRandom::setTheSeed(p_seed==0 ? std::time(0) : p_seed);
