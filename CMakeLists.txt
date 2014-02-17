@@ -52,6 +52,7 @@ foreach(source ${source_files})
 endforeach(source)
 
 configure_file(${PROJECT_SOURCE_DIR}/vis.mac ${PROJECT_BINARY_DIR}/vis.mac COPYONLY)
+configure_file(${PROJECT_SOURCE_DIR}/models/example.yml ${PROJECT_BINARY_DIR}/model.yml COPYONLY)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
