@@ -7,22 +7,87 @@
 #include <G4Material.hh>
 #include <G4NistManager.hh>
 
+#include <yaml-cpp/yaml.h>
+#include <sstream>
+#include <utility>
+
 using namespace CLHEP;
 
-DetectorConstruction::DetectorConstruction(G4double radius)
-	: G4VUserDetectorConstruction(),fRadius(radius) {}
+DetectorConstruction::DetectorConstruction(G4String modelfile)
+: mFromCenter(true), mStartRadius(0.0), mTotalThickness(0.0) {
+	G4cout << "Loading model from: " << modelfile << G4endl;
+	YAML::Node mdl = YAML::LoadFile(modelfile);
+
+	G4cout << "> Model name: " << mdl["name"] << G4endl;
+
+	if(mdl["startat"]) {
+		mStartRadius = mdl["startat"].as<double>()*km;
+		mFromCenter = false;
+		G4cout << "> Starts at: " << mStartRadius/km << " [km]" << G4endl;
+	} else {
+		G4cout << "> Starts from the center." << G4endl;
+	}
+
+	int layerid=0;
+	for(YAML::const_iterator it=mdl["layers"].begin();it!=mdl["layers"].end();++it) {
+		typedef std::pair<G4Element*, double> component;
+		YAML::Node ly = *it;
+		double totalDensity = 0.0, totalPressure = 0.0;
+		std::vector<component> cs;
+		layer cly;
+
+		std::ostringstream layername_stream;
+		layername_stream << "layer_" << layerid;
+		cly.name = layername_stream.str();
+
+		double temperature = ly["temperature"].as<double>()*kelvin;
+		cly.thickness = ly["thickness"].as<double>() * km;
+		G4cout << "> Layer: " << cly.name << G4endl;
+		G4cout << "  layerid = " << layerid << G4endl;
+		G4cout << "  thickness = " << cly.thickness/km << " [km]" << G4endl;
+		G4cout << "  temperature = " << temperature/kelvin << " [K]" << G4endl;
+
+		for(YAML::const_iterator itc=ly["components"].begin();itc!=ly["components"].end();++itc) {
+			std::string symbol = (*itc)["symbol"].as<std::string>();
+			component c(
+				G4NistManager::Instance()->FindOrBuildElement(symbol), // corresponding G4Element
+				(*itc)["density"].as<double>()*g/cm3 // component's density
+			);
+
+			totalPressure += Avogadro*k_Boltzmann*temperature*c.second/c.first->GetA();
+			totalDensity += c.second;
+			cs.push_back(c);
+		}
+
+		G4cout << "  density = " << totalDensity/(g/cm3) << " [g/cm3]" << G4endl;
+		G4cout << "  pressure = " << totalPressure/atmosphere << " [atm]" << G4endl;
+
+		int ncomponents = cs.size();
+		cly.material = new G4Material(cly.name, totalDensity, ncomponents, kStateGas, temperature, totalPressure);
+		for(std::vector<component>::iterator itc=cs.begin();itc!=cs.end();++itc) {
+			double fraction = itc->second/totalDensity;
+			G4cout << "  - " << itc->first->GetName() << ": " << fraction << " (" << itc->second/(g/cm3) << " [g/cm3])" << G4endl;
+			cly.material->AddElement(itc->first, fraction);
+		}
+
+		mTotalThickness += cly.thickness;
+		layers.push_back(cly);
+		layerid++;
+	}
+}
 
 G4VPhysicalVolume* DetectorConstruction::Construct() {
-	G4Material* fMaterial = getSpaceAir(4.339e-10*g/cm3, 182.1*kelvin);
-	G4cout << "==================  Material  ==================" << G4endl;
-	G4cout << (*fMaterial) << G4endl;
-
 	// World
-	//G4CSGSolid* sWorld = new G4Orb("World", fRadius);
-	G4CSGSolid* sWorld = new G4Sphere("World", 6371*km, (6371+565)*km, 0, 2*pi, 0, pi);
+	G4CSGSolid* sWorld;
+	if(mFromCenter) {
+		sWorld = new G4Orb("World", mTotalThickness);
+	} else {
+		sWorld = new G4Sphere("World", mStartRadius, mStartRadius+mTotalThickness, 0, 2*pi, 0, pi);
+	}
 
 	// Logical World Volume. Arguments: // shape, material, name
-	fWorldVolume = new G4LogicalVolume(sWorld, getVacuumMaterial(), "World");
+	G4Material* galacticMaterial = G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
+	fWorldVolume = new G4LogicalVolume(sWorld, galacticMaterial, "World");
 
 	G4VPhysicalVolume* pWorld = new G4PVPlacement(
 		0,                      // no rotation
@@ -33,24 +98,41 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 		false,                  // no boolean operation
 		0                       // copy number
 	);
-	
-	// World
-	//G4CSGSolid* sWorld = new G4Orb("World", fRadius);
-	G4CSGSolid* sAtm = new G4Sphere("Atmosphere", 6371*km, (6371+100)*km, 0, 2*pi, 0, pi);
 
-	// Logical World Volume. Arguments: // shape, material, name
-	G4LogicalVolume* atmVolume = new G4LogicalVolume(sAtm, fMaterial, "Atmosphere");
+	// Layers
+	bool firstOrb = mFromCenter;
+	double nextStartRadius = mStartRadius;
+	for(std::vector<layer>::iterator it=layers.begin();it!=layers.end();++it) {
+		layer& ly = *it;
 
-	//G4VPhysicalVolume* pAtm = new G4PVPlacement(
-	new G4PVPlacement(
-		0,                      // no rotation
-		G4ThreeVector(),        // at (0,0,0)
-		atmVolume,              // logical volume
-		"Atmosphere",           // name
-		fWorldVolume,           // mother volume
-		false,                  // no boolean operation
-		0                       // copy number
-	);
+		// Calculate the geometry parameters
+		ly.dStartRadius = nextStartRadius;
+		ly.dEndRadius = ly.dStartRadius + ly.thickness;
+		nextStartRadius = ly.dEndRadius;
+
+		// Create the proper solid: usually a shell, but a sphere if
+		// the geometry starts from the center
+		if(firstOrb) {
+			ly.dSolid = new G4Orb(ly.name+"_solid", ly.dEndRadius);
+			firstOrb = false;
+		} else {
+			ly.dSolid = new G4Sphere(ly.name+"_solid", ly.dStartRadius, ly.dEndRadius, 0, 2*pi, 0, pi);
+		}
+
+		// Logical World Volume. Arguments: // shape, material, name
+		ly.dLogicalVolume = new G4LogicalVolume(ly.dSolid, ly.material, ly.name+"_logvol");
+
+		//G4VPhysicalVolume* pAtm = new G4PVPlacement(
+		new G4PVPlacement(
+			0,                      // no rotation
+			G4ThreeVector(),        // at (0,0,0)
+			ly.dLogicalVolume,      // logical volume
+			ly.name+"_placement",   // name
+			fWorldVolume,           // mother volume
+			false,                  // no boolean operation
+			0                       // copy number
+		);
+	}
 
 	return pWorld; // always return the root volume
 }
@@ -66,4 +148,8 @@ G4Material * DetectorConstruction::getSpaceAir(G4double density, G4double temp) 
 
 G4Material * DetectorConstruction::getVacuumMaterial() {
 	return G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
+}
+
+double DetectorConstruction::getWorldRadius() {
+	return mStartRadius+mTotalThickness;
 }
