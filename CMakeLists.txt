@@ -62,4 +62,6 @@ set(LIBRARIES ${Geant4_LIBRARIES} ${GSL_LIBRARIES} ${YAMLCPP_LIBRARY})
 add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})
 
-
+# loadmodel test
+add_executable(test-loadmodel tests/loadmodel.cc src/DetectorConstruction.cc)
+target_link_libraries(test-loadmodel ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
