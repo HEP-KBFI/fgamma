@@ -1,15 +1,19 @@
 # Simple model of the Earth's atmosphere
 name: Simple Earth
-startat: 6371
+#startat: 6371
 
 layers:
 - components:
-  - {density: 0.00027583203048071013, symbol: O}
-  - {density: 0.0008996646165080754, symbol: N}
+  - {element: O, density: 0.00027583203048071013}
+  - {element: N, density: 0.0008996646165080754}
   temperature: 280.4653135719046
   thickness: 100
 - components:
-  - {density: 3.5133370156057987e-16, symbol: O}
-  - {density: 3.5582794133022186e-17, symbol: N}
+  - {element: He, density: 3.5133370156057987e-16}
+  - {element: H, number_density: 1.3981057570369925e+15}
+  - element: O
+    isotopes:
+    - {A: 16, number_density: 1e+15}
+    - {A: 17, number_density: 2e+15}
   temperature: 1249.7853093407152
   thickness: 500

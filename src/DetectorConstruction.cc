@@ -48,15 +48,59 @@ DetectorConstruction::DetectorConstruction(G4String modelfile)
 		G4cout << "  temperature = " << temperature/kelvin << " [K]" << G4endl;
 
 		for(YAML::const_iterator itc=ly["components"].begin();itc!=ly["components"].end();++itc) {
-			std::string symbol = (*itc)["symbol"].as<std::string>();
-			component c(
-				G4NistManager::Instance()->FindOrBuildElement(symbol), // corresponding G4Element
-				(*itc)["density"].as<double>()*g/cm3 // component's density
-			);
+			// Find the corresponding G4Element
+			std::string element_symbol = (*itc)["element"].as<std::string>();
+			G4Element * element = G4NistManager::Instance()->FindOrBuildElement(element_symbol);
+			double density = NAN;
 
+			if((*itc)["isotopes"]) {
+				// if it has a list of isotopes, they define the element
+				typedef std::pair<G4Isotope*, double> isotope;
+				std::vector<isotope> isotopes;
+				density = 0.0;
+				// we'll use the original element as a library for isotopes
+				G4IsotopeVector * isolib = element->GetIsotopeVector();
+
+				for(YAML::const_iterator itiso=(*itc)["isotopes"].begin();itiso!=(*itc)["isotopes"].end();++itiso) {
+					int A = (*itiso)["A"].as<int>();
+					double n = (*itiso)["number_density"].as<double>();
+					G4Isotope * thisisotope;
+
+					bool found = false;
+					for(G4IsotopeVector::iterator itlibiso=isolib->begin();itlibiso!=isolib->end();++itlibiso) {
+						if((*itlibiso)->GetN() == A) {
+							thisisotope = *itlibiso;
+							found = true;
+						}
+					}
+
+					if(found) {
+						isotopes.push_back(isotope(thisisotope, n));
+						density = thisisotope->GetA()*n/Avogadro;
+					} else {
+						G4cout << "WARNING: Did not find isotope: " << *itiso << G4endl;
+					}
+				}
+
+				std::ostringstream element_name;
+				element_name << element_symbol << "_layer_" << layerid;
+				element = new G4Element(element_name.str(), element_symbol, isotopes.size());
+				for(std::vector<isotope>::iterator itiso=isotopes.begin();itiso!=isotopes.end();++itiso) {
+					element->AddIsotope(itiso->first, itiso->second);
+				}
+				G4cout << element << G4endl;
+			} else if((*itc)["number_density"]) {
+				// if not, try to find a number density
+				density = element->GetA()*(*itc)["number_density"].as<double>()/Avogadro;
+			} else {
+				// otherwise, assume that density is specified and hope for the best
+				density = (*itc)["density"].as<double>()*g/cm3;
+			}
+
+			component c(element, density);
 			totalPressure += Avogadro*k_Boltzmann*temperature*c.second/c.first->GetA();
 			totalDensity += c.second;
-			cs.push_back(c);
+			cs.push_back(component(element, density));
 		}
 
 		G4cout << "  density = " << totalDensity/(g/cm3) << " [g/cm3]" << G4endl;
