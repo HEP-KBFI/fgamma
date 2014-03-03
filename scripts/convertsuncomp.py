@@ -2,7 +2,7 @@
 import re
 import yaml
 
-ifile = 'suncomp/sun_composition.dat'
+ifile = 'sun_composition.dat'
 ofile = 'solarmodel.yml'
 
 # Read the .dat file
