@@ -136,6 +136,7 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(uam.getUserEventAction());
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserStackingAction());
+	runManager->SetUserAction(uam.getUserTrackingAction());
 
 	G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 

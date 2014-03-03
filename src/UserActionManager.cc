@@ -32,6 +32,15 @@ class UAIUserStackingAction : public G4UserStackingAction {
 		}
 };
 
+class UAIUserTrackingAction : public G4UserTrackingAction {
+	UserActionsInterface * uai;
+	public:
+		UAIUserTrackingAction(UserActionsInterface * uai) : uai(uai) {}
+		void PostUserTrackingAction(const G4Track* tr) {
+			uai->postTracking(tr);
+		}
+};
+
 // ---------------------------------------------------------------------
 //                    Histogrammer class
 // ---------------------------------------------------------------------
@@ -41,6 +50,7 @@ UserActionManager::UserActionManager(bool store_tracks, G4String prefix) :
 	userSteppingAction = new UAIUserSteppingAction(this);
 	userEventAction = new UAIUserEventAction(this);
 	userStackingAction = new UAIUserStackingAction(this);
+	userTrackingAction = new UAIUserTrackingAction(this);
 
 	hE = gsl_histogram_alloc(10);
 	double rngs[] = {0,1e-3,1e-2,1e-1,1e0,1e1,1e2,1e3,1e4,1e5,1e6};
@@ -70,6 +80,10 @@ G4UserEventAction * UserActionManager::getUserEventAction() {
 
 G4UserStackingAction * UserActionManager::getUserStackingAction() {
 	return userStackingAction;
+}
+
+G4UserTrackingAction * UserActionManager::getUserTrackingAction() {
+	return userTrackingAction;
 }
 
 void UserActionManager::event(const G4Event * ev) {
@@ -118,6 +132,13 @@ void UserActionManager::step(const G4Step * step) {
 
 	// update the histogram
 	gsl_histogram_increment(hE, E);
+}
+
+void UserActionManager::postTracking(const G4Track* tr) {
+	track_stream << " > PostTrack(" << tr->GetTrackID() << "): stepp - " << tr->GetStep() << G4endl;
+	if(tr->GetStep()->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
+		track_stream << "   > BOUNDARY!" << G4endl;
+	}
 }
 
 void UserActionManager::saveHistograms() {
