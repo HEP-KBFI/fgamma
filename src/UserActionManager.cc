@@ -46,51 +46,9 @@ class UAIUserTrackingAction : public G4UserTrackingAction {
 };
 
 // ---------------------------------------------------------------------
-//                    Histogrammer class
+//         Implementations of the Geant4 user action classes
 // ---------------------------------------------------------------------
-UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
-	pUAI.evid = -1;
-	pUAI.event_stream.open((prefix+"events.txt").c_str());
-	pUAI.track_stream.open(store_tracks ? (prefix+"tracks.txt").c_str() : "/dev/null");
 
-	userSteppingAction = new UAIUserSteppingAction(pUAI);
-	userEventAction = new UAIUserEventAction(pUAI);
-	userStackingAction = new UAIUserStackingAction(pUAI);
-	userTrackingAction = new UAIUserTrackingAction(pUAI);
-
-	pUAI.hE = gsl_histogram_alloc(10);
-	double rngs[] = {0,1e-3,1e-2,1e-1,1e0,1e1,1e2,1e3,1e4,1e5,1e6};
-	gsl_histogram_set_ranges(pUAI.hE, rngs, 11);
-	for(unsigned int i=0; i<pUAI.hE->n+1; i++) {
-		G4cout << i << ' ' << pUAI.hE->range[i] << G4endl;
-	}
-
-	// Write the header of the events CSV file
-	pUAI.event_stream << "event,pid,name,E,x,y,z,theta,phi,px,py,pz,p_theta,p_phi" << G4endl;
-	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
-}
-
-UserActionManager::~UserActionManager() {
-	pUAI.track_stream.close();
-	pUAI.event_stream.close();
-	gsl_histogram_free(pUAI.hE);
-}
-
-G4UserSteppingAction * UserActionManager::getUserSteppingAction() {
-	return userSteppingAction;
-}
-
-G4UserEventAction * UserActionManager::getUserEventAction() {
-	return userEventAction;
-}
-
-G4UserStackingAction * UserActionManager::getUserStackingAction() {
-	return userStackingAction;
-}
-
-G4UserTrackingAction * UserActionManager::getUserTrackingAction() {
-	return userTrackingAction;
-}
 
 void UAIUserEventAction::BeginOfEventAction(const G4Event * ev) {
 	G4cout << "EVENT: " << ev->GetEventID() << G4endl;
@@ -144,6 +102,54 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr) {
 	if(tr->GetStep()->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
 		pUAI.track_stream << "   > BOUNDARY!" << G4endl;
 	}
+}
+
+// ---------------------------------------------------------------------
+//                  UserActionManager implementation
+// ---------------------------------------------------------------------
+
+UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
+	pUAI.evid = -1;
+	pUAI.event_stream.open((prefix+"events.txt").c_str());
+	pUAI.track_stream.open(store_tracks ? (prefix+"tracks.txt").c_str() : "/dev/null");
+
+	userSteppingAction = new UAIUserSteppingAction(pUAI);
+	userEventAction = new UAIUserEventAction(pUAI);
+	userStackingAction = new UAIUserStackingAction(pUAI);
+	userTrackingAction = new UAIUserTrackingAction(pUAI);
+
+	pUAI.hE = gsl_histogram_alloc(10);
+	double rngs[] = {0,1e-3,1e-2,1e-1,1e0,1e1,1e2,1e3,1e4,1e5,1e6};
+	gsl_histogram_set_ranges(pUAI.hE, rngs, 11);
+	for(unsigned int i=0; i<pUAI.hE->n+1; i++) {
+		G4cout << i << ' ' << pUAI.hE->range[i] << G4endl;
+	}
+
+	// Write the header of the events CSV file
+	pUAI.event_stream << "event,pid,name,E,x,y,z,theta,phi,px,py,pz,p_theta,p_phi" << G4endl;
+	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
+}
+
+UserActionManager::~UserActionManager() {
+	pUAI.track_stream.close();
+	pUAI.event_stream.close();
+	gsl_histogram_free(pUAI.hE);
+}
+
+G4UserSteppingAction * UserActionManager::getUserSteppingAction() {
+	return userSteppingAction;
+}
+
+G4UserEventAction * UserActionManager::getUserEventAction() {
+	return userEventAction;
+}
+
+G4UserStackingAction * UserActionManager::getUserStackingAction() {
+	return userStackingAction;
+}
+
+G4UserTrackingAction * UserActionManager::getUserTrackingAction() {
+	return userTrackingAction;
 }
 
 void UserActionManager::saveHistograms() {
