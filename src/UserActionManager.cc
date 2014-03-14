@@ -9,35 +9,35 @@ using namespace CLHEP;
 // ---------------------------------------------------------------------
 
 class UAIUserSteppingAction : public G4UserSteppingAction {
-	UserActionsInterface * uai;
+	UserActionsInterface * pUAI;
 	public:
-		UAIUserSteppingAction(UserActionsInterface * uai) : uai(uai) {}
-		void UserSteppingAction(const G4Step * step) {uai->step(step);}
+		UAIUserSteppingAction(UserActionsInterface * uai) : pUAI(uai) {}
+		void UserSteppingAction(const G4Step * step) {pUAI->step(step);}
 };
 
 class UAIUserEventAction : public G4UserEventAction {
-	UserActionsInterface * uai;
+	UserActionsInterface * pUAI;
 	public:
-		UAIUserEventAction(UserActionsInterface * uai) : uai(uai) {}
-		void BeginOfEventAction(const G4Event * ev) {uai->event(ev);}
-		void EndOfEventAction(const G4Event * ev) {uai->eventEnd(ev);}
+		UAIUserEventAction(UserActionsInterface * uai) : pUAI(uai) {}
+		void BeginOfEventAction(const G4Event * ev) {pUAI->event(ev);}
+		void EndOfEventAction(const G4Event * ev) {pUAI->eventEnd(ev);}
 };
 
 class UAIUserStackingAction : public G4UserStackingAction {
-	UserActionsInterface * uai;
+	UserActionsInterface * pUAI;
 	public:
-		UAIUserStackingAction(UserActionsInterface * uai) : uai(uai) {}
+		UAIUserStackingAction(UserActionsInterface * uai) : pUAI(uai) {}
 		G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* tr) {
-			return uai->classifyTrack(tr);
+			return pUAI->classifyTrack(tr);
 		}
 };
 
 class UAIUserTrackingAction : public G4UserTrackingAction {
-	UserActionsInterface * uai;
+	UserActionsInterface * pUAI;
 	public:
-		UAIUserTrackingAction(UserActionsInterface * uai) : uai(uai) {}
+		UAIUserTrackingAction(UserActionsInterface * uai) : pUAI(uai) {}
 		void PostUserTrackingAction(const G4Track* tr) {
-			uai->postTracking(tr);
+			pUAI->postTracking(tr);
 		}
 };
 
