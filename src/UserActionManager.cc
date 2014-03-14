@@ -49,6 +49,12 @@ class UAIUserTrackingAction : public G4UserTrackingAction {
 //         Implementations of the Geant4 user action classes
 // ---------------------------------------------------------------------
 
+class UserTrackInformation : public G4VUserTrackInformation {
+	public:
+		UserTrackInformation() : G4VUserTrackInformation() {
+			//
+		}
+};
 
 void UAIUserEventAction::BeginOfEventAction(const G4Event * ev) {
 	G4cout << "EVENT: " << ev->GetEventID() << G4endl;
