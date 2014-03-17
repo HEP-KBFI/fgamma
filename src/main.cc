@@ -121,6 +121,9 @@ int main(int argc, char * argv[]) {
 		exit(-1);
 	}
 
+	// verbosity of Geant4 classes -- let's make sure they dont spam if p_verbosity == 1
+	int geant_verbosity = p_verbosity==0 ? 0 : p_verbosity-1;
+
 	// print the important simulation parameters (prefixed by a % for easy grepping)
 	G4cout << "% energy " << energy/MeV << " MeV" << G4endl;
 	G4cout << "% incidence " << incidence << G4endl;
@@ -128,6 +131,7 @@ int main(int argc, char * argv[]) {
 
 	// construct the default run manager
 	G4RunManager* runManager = new G4RunManager;
+	runManager->SetVerboseLevel(geant_verbosity);
 
 	// set mandatory initialization classes
 	DetectorConstruction * userDetectorConstruction = new DetectorConstruction(p_modelfile, p_verbosity);
@@ -135,13 +139,14 @@ int main(int argc, char * argv[]) {
 
 	// load the physics list
 	G4PhysListFactory factory;
-	factory.SetVerbose(0);
+	factory.SetVerbose(geant_verbosity);
 	G4VUserPhysicsList * physicslist = factory.GetReferencePhysList("QGSP_BERT");
 	runManager->SetUserInitialization(physicslist);
 
 	// set user actions
 	G4double gunradius = userDetectorConstruction->getWorldRadius();
 	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy, gunradius, incidence*halfpi));
+	G4cout << "% gunradius " << gunradius/km << " km" << G4endl;
 
 	UserActionManager uam(p_tracks, p_prefix);
 	runManager->SetUserAction(uam.getUserEventAction());
@@ -150,7 +155,7 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(uam.getUserTrackingAction());
 
 	// print the table of materials
-	//G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+	if(p_verbosity>1){G4cout << *(G4Material::GetMaterialTable()) << G4endl;}
 
 	// initialize G4 kernel
 	runManager->Initialize();
