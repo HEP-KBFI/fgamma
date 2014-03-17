@@ -99,18 +99,22 @@ int main(int argc, char * argv[]) {
 	int argp_index;
 	argp_parse(&argp_argp, argc, argv, 0, &argp_index, 0);
 
-	// the positional energy argument must be handled manually
-	if(argp_index+2 != argc) {
-		G4cerr << "Too many or too few arguments!" << G4endl;
-		G4cout << " > argp_index = " << argp_index << G4endl;
-		G4cout << " > argc = " << argc << G4endl;
+	// the positional arguments have to be handled manually though
+	if(argc-argp_index != 2) {
+		G4cerr << "ERROR: Wrong number of arguments - got " << argc-argp_index << ", expected 2!" << G4endl;
+		G4cerr << "  argp_index = " << argp_index << ", argc = " << argc << G4endl;
 		for(int i=0; i<argc; i++) {
-			G4cout << " > argv[" << i << "] = `" << argv[i] << "`" << G4endl;
+			G4cerr << "  argv[" << i << "] = `" << argv[i] << "`" << G4endl;
 		}
-		exit(-1);
+		exit(1);
 	}
 	G4double energy = atof(argv[argp_index])*GeV;
 	G4double incidence = atof(argv[argp_index+1]);
+	if(incidence < 0 || incidence > 1) {
+		G4cerr << "ERROR: Incidence has to be between 0 and 1 (got " << incidence << " from `" << argv[argp_index+1] << "`)" << G4endl;
+		exit(-1);
+	}
+
 	G4cout << "E_0 = " << energy/MeV << " MeV" << G4endl;
 
 	// print the table of materials
