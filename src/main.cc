@@ -115,10 +115,10 @@ int main(int argc, char * argv[]) {
 		exit(-1);
 	}
 
-	G4cout << "E_0 = " << energy/MeV << " MeV" << G4endl;
-
-	// print the table of materials
-	G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+	// print the important simulation parameters (prefixed by a % for easy grepping)
+	G4cout << "% energy " << energy/MeV << " MeV" << G4endl;
+	G4cout << "% incidence " << incidence << G4endl;
+	G4cout << "% modelfile " << p_modelfile << G4endl;
 
 	// construct the default run manager
 	G4RunManager* runManager = new G4RunManager;
@@ -127,6 +127,7 @@ int main(int argc, char * argv[]) {
 	DetectorConstruction * userDetectorConstruction = new DetectorConstruction(p_modelfile);
 	runManager->SetUserInitialization(userDetectorConstruction);
 
+	// load the physics list
 	G4PhysListFactory factory;
 	factory.SetVerbose(0);
 	G4VUserPhysicsList * physicslist = factory.GetReferencePhysList("QGSP_BERT");
@@ -142,7 +143,8 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(uam.getUserStackingAction());
 	runManager->SetUserAction(uam.getUserTrackingAction());
 
-	G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+	// print the table of materials
+	//G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 
 	// initialize G4 kernel
 	runManager->Initialize();
@@ -162,7 +164,7 @@ int main(int argc, char * argv[]) {
 			G4err << "No visualization compiled!" << G4endl;
 		#endif
 	} else {
-		G4cout << "Starting simulation: runs = " << p_runs << G4endl;
+		G4cout << "Starting runs: " << p_runs << G4endl;
 		runManager->BeamOn(p_runs);
 	}
 
