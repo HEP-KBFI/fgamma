@@ -13,19 +13,19 @@
 
 using namespace CLHEP;
 
-DetectorConstruction::DetectorConstruction(G4String modelfile)
+DetectorConstruction::DetectorConstruction(G4String modelfile, unsigned int verbosity)
 : mFromCenter(true), mStartRadius(0.0), mTotalThickness(0.0) {
-	G4cout << "Loading model from: " << modelfile << G4endl;
+	if(verbosity>0){G4cout << "Loading model from: " << modelfile << G4endl;}
 	YAML::Node mdl = YAML::LoadFile(modelfile);
 
-	G4cout << "> Model name: " << mdl["name"] << G4endl;
+	if(verbosity>0){G4cout << "Model name: " << mdl["name"] << G4endl;}
 
 	if(mdl["startat"]) {
 		mStartRadius = mdl["startat"].as<double>()*km;
 		mFromCenter = false;
-		G4cout << "> Starts at: " << mStartRadius/km << " [km]" << G4endl;
+		if(verbosity>1){G4cout << "Starts at: " << mStartRadius/km << " [km]" << G4endl;}
 	} else {
-		G4cout << "> Starts from the center." << G4endl;
+		if(verbosity>1){G4cout << "Starts from the center." << G4endl;}
 	}
 
 	int layerid=0;
@@ -42,10 +42,12 @@ DetectorConstruction::DetectorConstruction(G4String modelfile)
 
 		double temperature = ly["temperature"].as<double>()*kelvin;
 		cly.thickness = ly["thickness"].as<double>() * km;
-		G4cout << "> Layer: " << cly.name << G4endl;
-		G4cout << "  layerid = " << layerid << G4endl;
-		G4cout << "  thickness = " << cly.thickness/km << " [km]" << G4endl;
-		G4cout << "  temperature = " << temperature/kelvin << " [K]" << G4endl;
+		if(verbosity>1) {
+			G4cout << "> Layer: " << cly.name << G4endl;
+			G4cout << "  layerid = " << layerid << G4endl;
+			G4cout << "  thickness = " << cly.thickness/km << " [km]" << G4endl;
+			G4cout << "  temperature = " << temperature/kelvin << " [K]" << G4endl;
+		}
 
 		for(YAML::const_iterator itc=ly["components"].begin();itc!=ly["components"].end();++itc) {
 			// Find the corresponding G4Element
@@ -88,7 +90,7 @@ DetectorConstruction::DetectorConstruction(G4String modelfile)
 				for(std::vector<isotope>::iterator itiso=isotopes.begin();itiso!=isotopes.end();++itiso) {
 					element->AddIsotope(itiso->first, itiso->second);
 				}
-				G4cout << element << G4endl;
+				if(verbosity>1){G4cout << element << G4endl;}
 			} else if((*itc)["number_density"]) {
 				// if not, try to find a number density
 				density = element->GetA()*(*itc)["number_density"].as<double>()/Avogadro;
@@ -103,14 +105,16 @@ DetectorConstruction::DetectorConstruction(G4String modelfile)
 			cs.push_back(component(element, density));
 		}
 
-		G4cout << "  density = " << totalDensity/(g/cm3) << " [g/cm3]" << G4endl;
-		G4cout << "  pressure = " << totalPressure/atmosphere << " [atm]" << G4endl;
+		if(verbosity>1) {
+			G4cout << "  density = " << totalDensity/(g/cm3) << " [g/cm3]" << G4endl;
+			G4cout << "  pressure = " << totalPressure/atmosphere << " [atm]" << G4endl;
+		}
 
 		int ncomponents = cs.size();
 		cly.material = new G4Material(cly.name, totalDensity, ncomponents, kStateGas, temperature, totalPressure);
 		for(std::vector<component>::iterator itc=cs.begin();itc!=cs.end();++itc) {
 			double fraction = itc->second/totalDensity;
-			G4cout << "  - " << itc->first->GetName() << ": " << fraction << " (" << itc->second/(g/cm3) << " [g/cm3])" << G4endl;
+			if(verbosity>1){G4cout << "  - " << itc->first->GetName() << ": " << fraction << " (" << itc->second/(g/cm3) << " [g/cm3])" << G4endl;}
 			cly.material->AddElement(itc->first, fraction);
 		}
 

@@ -9,7 +9,7 @@ class G4CSGSolid;
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
 	public:
-		DetectorConstruction(G4String modelfile);
+		DetectorConstruction(G4String modelfile, unsigned int verbosity=1);
 
 		// methods from base class
 		virtual G4VPhysicalVolume* Construct();
