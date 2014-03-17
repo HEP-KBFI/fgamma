@@ -154,7 +154,9 @@ int main(int argc, char * argv[]) {
 
 	// initialize G4 kernel
 	runManager->Initialize();
-	CLHEP::HepRandom::setTheSeed(p_seed==0 ? std::time(0) : p_seed);
+	p_seed = p_seed==0 ? std::time(0) : p_seed;
+	G4cout << "% seed " << p_seed << G4endl;
+	CLHEP::HepRandom::setTheSeed(p_seed);
 
 	// start runs or go into visual mode
 	if(p_vis) {
@@ -179,5 +181,7 @@ int main(int argc, char * argv[]) {
 
 	// job termination
 	delete runManager;
+
+	G4cout << "% done" << G4endl;
 	return 0;
 }
