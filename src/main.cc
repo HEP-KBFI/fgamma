@@ -27,14 +27,16 @@ const char* argp_program_version = "fgamma";
 // Codes for options without the short name.
 #define PC_SEED  1001
 #define PC_TRCKS 1002
+#define PC_VIS   1003
 
 // Program's arguments - an array of option specifiers
 // name, short name, arg. name, flags, doc, group
 const argp_option argp_options[] = {
 	{0, 0, 0, 0, "General options:", 0},
-	//{"quiet", 'q', 0, 0, "reduce verbosity as much as possible", 0},
+	{"verbosity", 'v', "LEVEL", 0, "set the verbosity level (0 - minimal,"
+		" 1 - a bit (default), 2 - a lot)", 0},
 	{"prefix", 'o', "PREFIX", 0, "set the prefix of the output files", 0},
-	{"vis", 'v', 0, 0, "open the GUI instead of running the simulation", 0},
+	{"vis", PC_VIS, 0, 0, "open the GUI instead of running the simulation", 0},
 
 	{"seed", PC_SEED, "SEED", 0,
 		"set the seed for the random generators; if this is not"
@@ -57,6 +59,7 @@ G4String p_modelfile = "model.yml";
 bool p_tracks = false;
 G4String p_prefix = "";
 bool p_vis  = false; // go to visual mode (i.e. open the GUI instead)
+int p_verbosity = 1;
 
 // Argument parser callback called by argp
 error_t argp_parser(int key, char *arg, struct argp_state*) {
@@ -71,6 +74,9 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 			p_modelfile = G4String(arg);
 			break;
 		case 'v':
+			p_verbosity = std::atoi(arg);
+			break;
+		case PC_VIS:
 			p_vis = true;
 			break;
 		case PC_SEED:
@@ -124,7 +130,7 @@ int main(int argc, char * argv[]) {
 	G4RunManager* runManager = new G4RunManager;
 
 	// set mandatory initialization classes
-	DetectorConstruction * userDetectorConstruction = new DetectorConstruction(p_modelfile);
+	DetectorConstruction * userDetectorConstruction = new DetectorConstruction(p_modelfile, p_verbosity);
 	runManager->SetUserInitialization(userDetectorConstruction);
 
 	// load the physics list
