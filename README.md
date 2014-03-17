@@ -19,12 +19,13 @@ fgamma
 		  --seed=SEED            set the seed for the random generators; if this is
 								 not specified, time(0) is used)
 		  --tracks               store tracks in tracks.txt
-	  -v, --vis                  open the GUI instead of running the simulation
+	  -v, --verbosity=LEVEL      set the verbosity level (0 - minimal, 1 - a bit
+								 (default), 2 - a lot)
+		  --vis                  open the GUI instead of running the simulation
 
 	 Options for tweaking the physics:
-	  -p, --pressure=P           set the multiplier for the pressure
-	  -r, --radius=R             set the radius of the sphere in km (default is 10
-								 km)
+	  -m, --model=MODELFILE      set the YAML file used to model the geometry
+								 (default: model.yml)
 
 	 Other:
 	  -?, --help                 Give this help list
@@ -33,3 +34,4 @@ fgamma
 
 	Mandatory or optional arguments to long options are also mandatory or optional
 	for any corresponding short options.
+
