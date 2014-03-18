@@ -123,6 +123,8 @@ int main(int argc, char * argv[]) {
 
 	// verbosity of Geant4 classes -- let's make sure they dont spam if p_verbosity == 1
 	int geant_verbosity = p_verbosity==0 ? 0 : p_verbosity-1;
+	G4cout << "verbosity: " << p_verbosity << G4endl;
+	G4cout << "Geant4 verbosity: " << geant_verbosity << G4endl;
 
 	// print the important simulation parameters (prefixed by a % for easy grepping)
 	G4cout << "% energy " << energy/MeV << " MeV" << G4endl;
