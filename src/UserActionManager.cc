@@ -126,8 +126,11 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr) {
 UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
 	pUAI.evid = -1;
 	pUAI.event_stream.open((prefix+"events.txt").c_str());
-	pUAI.track_stream.open(store_tracks ? (prefix+"tracks.txt").c_str() : "/dev/null");
 	pUAI.store_tracks = store_tracks;
+
+	if(pUAI.store_tracks) {
+		pUAI.track_stream.open((prefix+"tracks.txt").c_str());
+	}
 
 	userSteppingAction = new UAIUserSteppingAction(pUAI);
 	userEventAction = new UAIUserEventAction(pUAI);
