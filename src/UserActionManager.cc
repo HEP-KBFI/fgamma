@@ -84,16 +84,16 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
 	}
 
 	G4int pid = step->GetTrack()->GetParticleDefinition()->GetPDGEncoding();
-	G4String name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
-	G4double mass = step->GetTrack()->GetDynamicParticle()->GetMass();
+	const G4String& name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+	const G4double& mass = step->GetTrack()->GetDynamicParticle()->GetMass();
 
 	G4double vertex_KE = step->GetTrack()->GetVertexKineticEnergy();
-	G4ThreeVector vertex = step->GetTrack()->GetVertexPosition();
-	G4ThreeVector vertex_pdir = step->GetTrack()->GetVertexMomentumDirection();
+	const G4ThreeVector& vertex = step->GetTrack()->GetVertexPosition();
+	const G4ThreeVector& vertex_pdir = step->GetTrack()->GetVertexMomentumDirection();
 
 	G4double E = step->GetTrack()->GetTotalEnergy();
-	G4ThreeVector pos = step->GetPostStepPoint()->GetPosition();
-	G4ThreeVector pdir = step->GetTrack()->GetMomentumDirection();
+	const G4ThreeVector& pos = step->GetPostStepPoint()->GetPosition();
+	const G4ThreeVector& pdir = step->GetTrack()->GetMomentumDirection();
 
 	pUAI.event_stream << std::setw(5) << pUAI.evid << ',' << std::setw(4) << pid << ',' << std::setw(12) << name
 	                  << std::scientific << std::setprecision(10)
