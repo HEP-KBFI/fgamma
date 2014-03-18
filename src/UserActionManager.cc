@@ -85,6 +85,11 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
 
 	G4int pid = step->GetTrack()->GetParticleDefinition()->GetPDGEncoding();
 	G4String name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+	G4double mass = step->GetTrack()->GetDynamicParticle()->GetMass();
+
+	G4double vertex_KE = step->GetTrack()->GetVertexKineticEnergy();
+	G4ThreeVector vertex = step->GetTrack()->GetVertexPosition();
+	G4ThreeVector vertex_pdir = step->GetTrack()->GetVertexMomentumDirection();
 
 	G4double E = step->GetTrack()->GetTotalEnergy();
 	G4ThreeVector pos = step->GetPostStepPoint()->GetPosition();
@@ -92,11 +97,15 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
 
 	pUAI.event_stream << std::setw(5) << pUAI.evid << ',' << std::setw(4) << pid << ',' << std::setw(12) << name
 	                  << std::scientific << std::setprecision(10)
+	                  << ',' << mass/MeV
+	                  << ',' << vertex_KE
+	                  << ',' << vertex.x()/km << ',' << vertex.y()/km << ',' << vertex.z()/km
+	                  << ',' << vertex_pdir.x() << ',' << vertex_pdir.y() << ',' << vertex_pdir.z()
 	                  << ',' << E/MeV
 	                  << ',' << pos.x()/km << ',' << pos.y()/km << ',' << pos.z()/km
-	                  << ',' << pos.theta() << ',' << pos.phi()
+	                  //<< ',' << pos.theta() << ',' << pos.phi()
 	                  << ',' << pdir.x() << ',' << pdir.y() << ',' << pdir.z()
-	                  << ',' << pdir.theta() << ',' << pdir.phi()
+	                  //<< ',' << pdir.theta() << ',' << pdir.phi()
 	                  << G4endl;
 
 	// update the histogram
@@ -132,7 +141,7 @@ UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
 	}
 
 	// Write the header of the events CSV file
-	pUAI.event_stream << "event,pid,name,E,x,y,z,theta,phi,px,py,pz,p_theta,p_phi" << G4endl;
+	pUAI.event_stream << "event,pid,name,m,vKE,vx,vy,vz,vpx,vpy,vpz,E,x,y,z,px,py,pz" << G4endl;
 	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
 }
 
