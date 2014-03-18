@@ -27,6 +27,7 @@ class UserActionManager {
 			gsl_histogram * hE;
 			std::ofstream event_stream;
 			std::ofstream track_stream;
+			bool store_tracks;
 		};
 
 	private:
