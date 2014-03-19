@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+import argparse
+import yaml
+
+if __name__=='__main__':
+	parser = argparse.ArgumentParser(description='Print info about a model.')
+	#parser.add_argument('-n', type=int, default=3, help='number of times to measure.')
+	#parser.add_argument('-p', action='store_true', help='do measurements in parallel')
+	parser.add_argument('model')
+	args = parser.parse_args()
+	#print(args)
+
+	with open(args.model) as fin:
+		model=yaml.load(fin)
+		print('Model name:', model['name'])
+		print('Number of layers:', len(model['layers']))
+
+		thickness = sum([layer['thickness'] for layer in model['layers']])
+		print('Thickness:', thickness)
+
+		if 'startat' in model:
+			startat = model['startat']
+			print('Start at:', startat)
+			print('Outer layer:', thickness+startat)
