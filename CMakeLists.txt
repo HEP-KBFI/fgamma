@@ -31,6 +31,9 @@ include(${Geant4_USE_FILE})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 find_package(GSL REQUIRED)
 
+#----------------------------------------------------------------------------
+# Load the yaml-cpp library
+# ---
 find_package(YamlCpp REQUIRED)
 
 #----------------------------------------------------------------------------
