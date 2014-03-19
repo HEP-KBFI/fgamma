@@ -10,8 +10,8 @@ def measure_once(call):
 	return usertime
 
 if __name__=='__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-n', type=int, default=3)
+	parser = argparse.ArgumentParser(description='Measure the program execution time.')
+	parser.add_argument('-n', type=int, default=3, help='number of times to measure.')
 	parser.add_argument('command', nargs=argparse.REMAINDER)
 	args = parser.parse_args()
 	#print(args)
