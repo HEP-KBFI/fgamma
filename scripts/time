@@ -9,9 +9,18 @@ def measure_once(call):
 	usertime = float(sp.stderr.readlines()[-1])
 	return usertime
 
+def measure_parallel(call, n):
+	sps=[subprocess.Popen(call, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE) for _ in range(n)]
+	usertimes = []
+	for sp in sps:
+		sp.wait()
+		usertimes.append(float(sp.stderr.readlines()[-1]))
+	return usertimes
+
 if __name__=='__main__':
 	parser = argparse.ArgumentParser(description='Measure the program execution time.')
 	parser.add_argument('-n', type=int, default=3, help='number of times to measure.')
+	parser.add_argument('-p', action='store_true', help='do measurements in parallel')
 	parser.add_argument('command', nargs=argparse.REMAINDER)
 	args = parser.parse_args()
 	#print(args)
@@ -21,14 +30,19 @@ if __name__=='__main__':
 
 	print('Start measuring..')
 	utimes = []
-	for _ in range(args.n):
-		try:
-			utime = measure_once(call)
-		except KeyboardInterrupt:
-			print('Measurement interrupted.')
-			break
-		print(' - measured:', utime)
-		utimes.append(utime)
+	if args.p:
+		utimes = measure_parallel(call, args.n)
+		for utime in utimes:
+			print(' - measured:', utime)
+	else:
+		for _ in range(args.n):
+			try:
+				utime = measure_once(call)
+			except KeyboardInterrupt:
+				print('Measurement interrupted.')
+				break
+			print(' - measured:', utime)
+			utimes.append(utime)
 
 	if len(utimes) == 0:
 		print('No measurements, no math!')
