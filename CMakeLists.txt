@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(FGAMMA)
 
 #add_definitions(-std=c++0x)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -23,13 +24,6 @@ endif()
 # Setup include directory for this project
 # ---
 include(${Geant4_USE_FILE})
-
-#----------------------------------------------------------------------------
-# Load the GSL library
-# ---
-#include(FindGSL.cmake)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
-find_package(GSL REQUIRED)
 
 #----------------------------------------------------------------------------
 # Load the yaml-cpp library
@@ -60,7 +54,7 @@ configure_file(${PROJECT_SOURCE_DIR}/models/example.yml ${PROJECT_BINARY_DIR}/mo
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 # ---
-set(LIBRARIES ${Geant4_LIBRARIES} ${GSL_LIBRARIES} ${YAMLCPP_LIBRARY})
+set(LIBRARIES ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
 
 add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})

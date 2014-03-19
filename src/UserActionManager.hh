@@ -3,7 +3,6 @@
 
 #include <G4String.hh>
 #include <fstream>
-#include <gsl/gsl_histogram.h>
 
 class G4UserSteppingAction;
 class G4UserEventAction;
@@ -15,8 +14,6 @@ class UserActionManager {
 		UserActionManager(bool store_tracks, G4String prefix = "");
 		~UserActionManager();
 
-		void saveHistograms();
-
 		G4UserSteppingAction * getUserSteppingAction();
 		G4UserEventAction * getUserEventAction();
 		G4UserStackingAction * getUserStackingAction();
@@ -24,7 +21,6 @@ class UserActionManager {
 
 		struct CommonVariables {
 			G4int evid;
-			gsl_histogram * hE;
 			std::ofstream event_stream;
 			std::ofstream track_stream;
 			bool store_tracks;

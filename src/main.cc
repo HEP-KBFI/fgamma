@@ -183,9 +183,6 @@ int main(int argc, char * argv[]) {
 		runManager->BeamOn(p_runs);
 	}
 
-	// store histograms
-	//hists.saveHistograms();
-
 	// job termination
 	delete runManager;
 

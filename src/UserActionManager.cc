@@ -107,9 +107,6 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
 	                  << ',' << pdir.x() << ',' << pdir.y() << ',' << pdir.z()
 	                  //<< ',' << pdir.theta() << ',' << pdir.phi()
 	                  << G4endl;
-
-	// update the histogram
-	gsl_histogram_increment(pUAI.hE, E);
 }
 
 void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr) {
@@ -137,13 +134,6 @@ UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
 	userStackingAction = new UAIUserStackingAction(pUAI);
 	userTrackingAction = new UAIUserTrackingAction(pUAI);
 
-	pUAI.hE = gsl_histogram_alloc(10);
-	double rngs[] = {0,1e-3,1e-2,1e-1,1e0,1e1,1e2,1e3,1e4,1e5,1e6};
-	gsl_histogram_set_ranges(pUAI.hE, rngs, 11);
-	for(unsigned int i=0; i<pUAI.hE->n+1; i++) {
-		G4cout << i << ' ' << pUAI.hE->range[i] << G4endl;
-	}
-
 	// Write the header of the events CSV file
 	pUAI.event_stream << "event,pid,name,m,vKE,vx,vy,vz,vpx,vpy,vpz,E,x,y,z,px,py,pz" << G4endl;
 	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
@@ -152,7 +142,6 @@ UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
 UserActionManager::~UserActionManager() {
 	pUAI.track_stream.close();
 	pUAI.event_stream.close();
-	gsl_histogram_free(pUAI.hE);
 }
 
 G4UserSteppingAction * UserActionManager::getUserSteppingAction() {
@@ -169,18 +158,4 @@ G4UserStackingAction * UserActionManager::getUserStackingAction() {
 
 G4UserTrackingAction * UserActionManager::getUserTrackingAction() {
 	return userTrackingAction;
-}
-
-void UserActionManager::saveHistograms() {
-	std::ofstream fout("histos.txt");
-	fout << pUAI.hE->n << std::endl;
-	for(unsigned int i=0; i<pUAI.hE->n+1; i++) {
-		fout << (i==0?"":" ") << pUAI.hE->range[i];
-	}
-	fout << std::endl;
-	for(unsigned int i=0; i<pUAI.hE->n; i++) {
-		fout << (i==0?"":" ") << pUAI.hE->bin[i];
-	}
-	fout << std::endl;
-	fout.close();
 }
