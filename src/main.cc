@@ -121,6 +121,8 @@ int main(int argc, char * argv[]) {
 		exit(-1);
 	}
 
+	G4cout << "% fgamma" << G4endl;
+
 	// verbosity of Geant4 classes -- let's make sure they dont spam if p_verbosity == 1
 	int geant_verbosity = p_verbosity==0 ? 0 : p_verbosity-1;
 	G4cout << "verbosity: " << p_verbosity << G4endl;
@@ -130,6 +132,7 @@ int main(int argc, char * argv[]) {
 	G4cout << "% energy " << energy/MeV << " MeV" << G4endl;
 	G4cout << "% incidence " << incidence << G4endl;
 	G4cout << "% modelfile " << p_modelfile << G4endl;
+	G4cout << "% prefix " << p_prefix << G4endl;
 
 	// construct the default run manager
 	G4RunManager* runManager = new G4RunManager;
@@ -179,7 +182,7 @@ int main(int argc, char * argv[]) {
 			G4err << "No visualization compiled!" << G4endl;
 		#endif
 	} else {
-		G4cout << "Starting runs: " << p_runs << G4endl;
+		G4cout << "% runs " << p_runs << G4endl;
 		runManager->BeamOn(p_runs);
 	}
 
