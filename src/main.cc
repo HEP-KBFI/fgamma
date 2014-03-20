@@ -57,7 +57,7 @@ int p_seed = 0;
 int p_runs = 1;
 G4String p_modelfile = "model.yml";
 bool p_tracks = false;
-G4String p_prefix = "";
+G4String p_prefix = "fgamma";
 bool p_vis  = false; // go to visual mode (i.e. open the GUI instead)
 int p_verbosity = 1;
 
