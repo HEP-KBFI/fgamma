@@ -1,13 +1,27 @@
 #!/usr/bin/env python3
+import os
 import argparse
 import subprocess
 import numpy as np
 
+class Timestimer:
+	def __init__(self):
+		self._start = os.times()
+
+	def elapsed(self):
+		current = list(os.times())
+		start = list(self._start)
+		for i in range(5):
+			current[i] = round(current[i]-start[i], 2)
+		return tuple(current[:4])
+
 def measure_once(call):
+	timer = Timestimer()
 	sp=subprocess.Popen(call, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 	sp.wait()
-	usertime = float(sp.stderr.readlines()[-1])
-	return usertime
+	_,_,usr,sys = timer.elapsed()
+	#print(usr, sys)
+	return usr,sys
 
 def measure_parallel(call, n):
 	sps=[subprocess.Popen(call, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE) for _ in range(n)]
@@ -25,19 +39,19 @@ if __name__=='__main__':
 	args = parser.parse_args()
 	#print(args)
 
-	call = ['/usr/bin/time', '-f%U'] + args.command
+	call = args.command
 	#print('Call:', call)
 
 	print('Start measuring..')
 	utimes = []
 	if args.p:
-		utimes = measure_parallel(call, args.n)
+		utimes = measure_parallel(['/usr/bin/time', '-f%U']+call, args.n)
 		for utime in utimes:
 			print(' - measured:', utime)
 	else:
 		for _ in range(args.n):
 			try:
-				utime = measure_once(call)
+				utime,stime = measure_once(call)
 			except KeyboardInterrupt:
 				print('Measurement interrupted.')
 				break
