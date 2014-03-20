@@ -4,7 +4,6 @@ fgamma
 **Requires**
 
 * [Geant4](http://geant4.cern.ch/)
-* [GNU Scientific Library (GSL)](http://www.gnu.org/software/gsl/)
 * [yaml-cpp](https://code.google.com/p/yaml-cpp/) (version >0.5)
 
 **Usage**
