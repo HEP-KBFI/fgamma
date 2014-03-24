@@ -12,7 +12,20 @@
 #include <G4VisExecutive.hh>
 #include <G4VisExtent.hh>
 
-#include <ctime>
+template<class T>
+T read_urandom()
+{
+	union {
+		T value;
+		char cs[sizeof(T)];
+	} u;
+
+	std::ifstream rfin("/dev/urandom");
+	rfin.read(u.cs, sizeof(u.cs));
+	rfin.close();
+
+	return u.value;
+}
 
 using namespace CLHEP;
 
@@ -163,7 +176,7 @@ int main(int argc, char * argv[]) {
 	if(p_verbosity>1){G4cout << *(G4Material::GetMaterialTable()) << G4endl;}
 
 	// set the random seed
-	p_seed = p_seed==0 ? std::time(0) : p_seed;
+	p_seed = p_seed==0 ? abs(read_urandom<int>()) : p_seed;
 	G4cout << "% seed " << p_seed << G4endl;
 	CLHEP::HepRandom::setTheSeed(p_seed);
 
