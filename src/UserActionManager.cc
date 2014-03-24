@@ -98,7 +98,7 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
 	pUAI.event_stream << std::setw(5) << pUAI.evid << ',' << std::setw(4) << pid << ',' << std::setw(12) << name
 	                  << std::scientific << std::setprecision(10)
 	                  << ',' << mass/MeV
-	                  << ',' << vertex_KE
+	                  << ',' << vertex_KE/MeV
 	                  << ',' << vertex.x()/km << ',' << vertex.y()/km << ',' << vertex.z()/km
 	                  << ',' << vertex_pdir.x() << ',' << vertex_pdir.y() << ',' << vertex_pdir.z()
 	                  << ',' << E/MeV
