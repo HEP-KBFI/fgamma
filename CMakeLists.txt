@@ -38,6 +38,7 @@ set(source_files
 	DetectorConstruction.cc
 	PrimaryGeneratorAction.cc
 	UserActionManager.cc
+	Timer.cc
 )
 
 message(" > Sources...")

@@ -1,6 +1,7 @@
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "UserActionManager.hh"
+#include "Timer.hh"
 
 #include "globals.hh"
 #include <G4RunManager.hh>
@@ -114,6 +115,8 @@ const argp argp_argp = {
 };
 
 int main(int argc, char * argv[]) {
+	Timer timer;
+
 	// parse the arguments
 	int argp_index;
 	argp_parse(&argp_argp, argc, argv, 0, &argp_index, 0);
@@ -146,6 +149,9 @@ int main(int argc, char * argv[]) {
 	G4cout << "% incidence " << incidence << G4endl;
 	G4cout << "% modelfile " << p_modelfile << G4endl;
 	G4cout << "% prefix " << p_prefix << G4endl;
+
+	// print timer start values
+	if(p_verbosity > 1) {G4cout << "timer.start: " << timer.start << G4endl;}
 
 	// construct the default run manager
 	G4RunManager* runManager = new G4RunManager;
@@ -204,6 +210,7 @@ int main(int argc, char * argv[]) {
 	// job termination
 	delete runManager;
 
-	G4cout << "% done" << G4endl;
+	G4cout << "% done " << timer.elapsed() << G4endl;
+
 	return 0;
 }
