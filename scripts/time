@@ -23,38 +23,47 @@ def measure_once(call):
 	#print(usr, sys)
 	return usr,sys
 
-if __name__=='__main__':
-	parser = argparse.ArgumentParser(description='Measure the program execution time.')
-	parser.add_argument('-n', type=int, default=3, help='number of times to measure.')
-	parser.add_argument('command', nargs=argparse.REMAINDER)
-	args = parser.parse_args()
-	#print(args)
-
-	call = args.command
-	#print('Call:', call)
-
-	print('Start measuring..')
+def measure_n_times(call, n, verbose=False):
 	utimes = []
-	for _ in range(args.n):
+	for _ in range(n):
 		try:
 			utime,stime = measure_once(call)
 		except KeyboardInterrupt:
 			print('Measurement interrupted.')
 			break
-		print(' - measured:', utime)
+		if verbose:
+			print(' - measured:', utime)
 		utimes.append(utime)
-
+	# return a tuple: (mean, stdev, [measurements])
 	if len(utimes) == 0:
-		print('No measurements, no math!')
+		return (None, None, [])
 	elif len(utimes) == 1:
-		print('Measured once:', utimes[0])
+		return (utimes[0], None, utimes)
 	else:
-		print('Measured {0} times.'.format(len(utimes)))
-		mean = np.mean(utimes)
-		stdev = np.std(utimes)
-		print('Mean utime: {:7.2f}'.format(mean))
-		print('Std. dev:   {:7.2f} ({:7.2%})'.format(stdev, stdev/mean if mean!=0.0 else float('nan')))
-		print('Min, max:   {:7.2f}, {:7.2f}'.format(min(utimes), max(utimes)))
+		return (np.mean(utimes), np.std(utimes), utimes)
+
+if __name__=='__main__':
+	parser = argparse.ArgumentParser(description='Measure the program execution time.')
+	parser.add_argument('-n', type=int, default=3, help='number of times to measure.')
+	parser.add_argument('-b', action='store_true', help='batch mode - minimize output')
+	parser.add_argument('command', nargs=argparse.REMAINDER)
+	args = parser.parse_args()
+
+	mean,stdev,utimes = measure_n_times(args.command, args.n, verbose=not args.b)
+
+	if args.b:
+		print(mean, stdev)
+		print(*utimes)
+	else:
+		if len(utimes) == 0:
+			print('No measurements, no math!')
+		elif len(utimes) == 1:
+			print('Measured once:', utimes[0])
+		else:
+			print('Measured {0} times.'.format(len(utimes)))
+			print('Mean utime: {:7.2f}'.format(mean))
+			print('Std. dev:   {:7.2f} ({:7.2%})'.format(stdev, stdev/mean if mean!=0.0 else float('nan')))
+			print('Min, max:   {:7.2f}, {:7.2f}'.format(min(utimes), max(utimes)))
 
 
 
