@@ -73,8 +73,8 @@ G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track
 	                  << "," << tr->GetKineticEnergy()/MeV
 	                  << "," << tr->GetPosition().mag()/km
 	                  << G4endl;
-	return tr->GetKineticEnergy() < 20*MeV ? fKill : fUrgent;
-	//return fUrgent;
+	//return tr->GetKineticEnergy() < 20*MeV ? fKill : fUrgent;
+	return fUrgent;
 }
 
 void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
