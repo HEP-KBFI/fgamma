@@ -162,11 +162,13 @@ int main(int argc, char * argv[]) {
 	// print the table of materials
 	if(p_verbosity>1){G4cout << *(G4Material::GetMaterialTable()) << G4endl;}
 
-	// initialize G4 kernel
-	runManager->Initialize();
+	// set the random seed
 	p_seed = p_seed==0 ? std::time(0) : p_seed;
 	G4cout << "% seed " << p_seed << G4endl;
 	CLHEP::HepRandom::setTheSeed(p_seed);
+
+	// initialize G4 kernel
+	runManager->Initialize();
 
 	// start runs or go into visual mode
 	if(p_vis) {
