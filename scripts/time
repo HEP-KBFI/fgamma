@@ -13,13 +13,13 @@ class Timestimer:
 		start = list(self._start)
 		for i in range(5):
 			current[i] = round(current[i]-start[i], 2)
-		return tuple(current[:4])
+		return tuple(current)
 
 def measure_once(call):
 	timer = Timestimer()
 	sp=subprocess.Popen(call, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 	sp.wait()
-	_,_,usr,sys = timer.elapsed()
+	_,_,usr,sys,_ = timer.elapsed()
 	#print(usr, sys)
 	return usr,sys
 
