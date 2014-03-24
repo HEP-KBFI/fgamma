@@ -55,10 +55,10 @@ if __name__=='__main__':
 
 	last_radius = 0.0
 	for layer in layers:
-		r = layer['radius'] - last_radius
+		thickness = layer['radius'] - last_radius
 
 		ly = {
-			'thickness': float(r),
+			'thickness': float(thickness),
 			'temperature': float(layer['Temp']),
 			'pressure': float(0.1 * layer['pres']), # from dyne/cm2 -> Pa
 			'components': []
@@ -94,7 +94,7 @@ if __name__=='__main__':
 		ly['components'].append(isotopes('O', [(16, layer['n_o16']), (17, layer['n_o17']), (18, layer['n_o18'])]))
 
 		model_layers['layers'].append(ly)
-		last_radius = r
+		last_radius = layer['radius']
 
 	print 'Dumping the model into YAML'
 	oyaml  = "# Solar atmosphere\n"
