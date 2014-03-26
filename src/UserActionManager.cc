@@ -16,14 +16,16 @@ using namespace CLHEP;
 //                  Geant4 user action classes
 // ---------------------------------------------------------------------
 
-class UAIUserSteppingAction : public G4UserSteppingAction {
+class UAIUserSteppingAction : public G4UserSteppingAction
+{
 	UserActionManager::CommonVariables &pUAI;
 	public:
 		UAIUserSteppingAction(UserActionManager::CommonVariables& uai) : pUAI(uai) {}
 		void UserSteppingAction(const G4Step * step);
 };
 
-class UAIUserEventAction : public G4UserEventAction {
+class UAIUserEventAction : public G4UserEventAction
+{
 	UserActionManager::CommonVariables &pUAI;
 	public:
 		UAIUserEventAction(UserActionManager::CommonVariables& uai) : pUAI(uai) {}
@@ -31,14 +33,16 @@ class UAIUserEventAction : public G4UserEventAction {
 		void EndOfEventAction(const G4Event * ev);
 };
 
-class UAIUserStackingAction : public G4UserStackingAction {
+class UAIUserStackingAction : public G4UserStackingAction
+{
 	UserActionManager::CommonVariables &pUAI;
 	public:
 		UAIUserStackingAction(UserActionManager::CommonVariables& uai) : pUAI(uai) {}
 		G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* tr);
 };
 
-class UAIUserTrackingAction : public G4UserTrackingAction {
+class UAIUserTrackingAction : public G4UserTrackingAction
+{
 	UserActionManager::CommonVariables &pUAI;
 	public:
 		UAIUserTrackingAction(UserActionManager::CommonVariables& uai) : pUAI(uai) {}
@@ -49,23 +53,27 @@ class UAIUserTrackingAction : public G4UserTrackingAction {
 //         Implementations of the Geant4 user action classes
 // ---------------------------------------------------------------------
 
-class UserTrackInformation : public G4VUserTrackInformation {
+class UserTrackInformation : public G4VUserTrackInformation
+{
 	public:
 		UserTrackInformation() : G4VUserTrackInformation() {
 			//
 		}
 };
 
-void UAIUserEventAction::BeginOfEventAction(const G4Event * ev) {
+void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
+{
 	G4cout << "EVENT: " << ev->GetEventID() << G4endl;
 	pUAI.evid = ev->GetEventID();
 }
 
-void UAIUserEventAction::EndOfEventAction(const G4Event*) {
+void UAIUserEventAction::EndOfEventAction(const G4Event*)
+{
 	pUAI.evid = -1;
 }
 
-G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track* tr) {
+G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track* tr)
+{
 	pUAI.track_stream << pUAI.evid << ","
 	                  << tr->GetParentID() << "," << tr->GetTrackID()
 	                  << "," << tr->GetParticleDefinition()->GetPDGEncoding()
@@ -77,7 +85,8 @@ G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track
 	return fUrgent;
 }
 
-void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
+void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
+{
 	//step->GetTrack()->GetParticleDefinition() != G4Gamma::Definition() // check gammas
 	if(step->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
 		return;
@@ -109,7 +118,8 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step) {
 	                  << G4endl;
 }
 
-void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr) {
+void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
+{
 	pUAI.track_stream << " > PostTrack(" << tr->GetTrackID() << "): stepp - " << tr->GetStep() << G4endl;
 	if(tr->GetStep()->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
 		pUAI.track_stream << "   > BOUNDARY!" << G4endl;
@@ -120,7 +130,8 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr) {
 //                  UserActionManager implementation
 // ---------------------------------------------------------------------
 
-UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
+UserActionManager::UserActionManager(bool store_tracks, G4String prefix)
+{
 	pUAI.evid = -1;
 	pUAI.event_stream.open((prefix+".csv").c_str());
 	pUAI.store_tracks = store_tracks;
@@ -139,23 +150,28 @@ UserActionManager::UserActionManager(bool store_tracks, G4String prefix) {
 	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
 }
 
-UserActionManager::~UserActionManager() {
+UserActionManager::~UserActionManager()
+{
 	pUAI.track_stream.close();
 	pUAI.event_stream.close();
 }
 
-G4UserSteppingAction * UserActionManager::getUserSteppingAction() {
+G4UserSteppingAction * UserActionManager::getUserSteppingAction()
+{
 	return userSteppingAction;
 }
 
-G4UserEventAction * UserActionManager::getUserEventAction() {
+G4UserEventAction * UserActionManager::getUserEventAction()
+{
 	return userEventAction;
 }
 
-G4UserStackingAction * UserActionManager::getUserStackingAction() {
+G4UserStackingAction * UserActionManager::getUserStackingAction()
+{
 	return userStackingAction;
 }
 
-G4UserTrackingAction * UserActionManager::getUserTrackingAction() {
+G4UserTrackingAction * UserActionManager::getUserTrackingAction()
+{
 	return userTrackingAction;
 }

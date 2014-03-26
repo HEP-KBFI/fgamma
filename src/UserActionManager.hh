@@ -9,7 +9,8 @@ class G4UserEventAction;
 class G4UserStackingAction;
 class G4UserTrackingAction;
 
-class UserActionManager {
+class UserActionManager
+{
 	public:
 		UserActionManager(bool store_tracks, G4String prefix = "");
 		~UserActionManager();
@@ -19,7 +20,8 @@ class UserActionManager {
 		G4UserStackingAction * getUserStackingAction();
 		G4UserTrackingAction * getUserTrackingAction();
 
-		struct CommonVariables {
+		struct CommonVariables
+		{
 			G4int evid;
 			std::ofstream event_stream;
 			std::ofstream track_stream;
