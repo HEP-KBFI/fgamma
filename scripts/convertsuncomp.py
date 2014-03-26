@@ -64,7 +64,7 @@ if __name__=='__main__':
 			'components': []
 		}
 
-		ly['components'].append(component('H', layer['n_H']))
+		ly['components'].append(isotopes('H', [(1, layer['n_H'])]))
 
 		ly['components'].append(component('Ne', layer['n_Ne']))
 		ly['components'].append(component('Na', layer['n_Na']))
