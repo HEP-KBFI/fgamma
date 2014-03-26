@@ -65,7 +65,7 @@ DetectorConstruction::DetectorConstruction(G4String modelfile, unsigned int verb
 
 				for(YAML::const_iterator itiso=(*itc)["isotopes"].begin();itiso!=(*itc)["isotopes"].end();++itiso) {
 					int A = (*itiso)["A"].as<int>();
-					double n = (*itiso)["number_density"].as<double>();
+					double n = (*itiso)["number_density"].as<double>()/cm3;
 					G4Isotope * thisisotope;
 
 					bool found = false;
@@ -93,7 +93,8 @@ DetectorConstruction::DetectorConstruction(G4String modelfile, unsigned int verb
 				if(verbosity>1){G4cout << element << G4endl;}
 			} else if((*itc)["number_density"]) {
 				// if not, try to find a number density
-				density = element->GetA()*(*itc)["number_density"].as<double>()/Avogadro;
+				double n = (*itc)["number_density"].as<double>()/cm3;
+				density = element->GetA()*n/Avogadro;
 			} else {
 				// otherwise, assume that density is specified and hope for the best
 				density = (*itc)["density"].as<double>()*g/cm3;
