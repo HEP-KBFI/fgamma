@@ -8,11 +8,12 @@ class G4UserSteppingAction;
 class G4UserEventAction;
 class G4UserStackingAction;
 class G4UserTrackingAction;
+class Timer;
 
 class UserActionManager
 {
 	public:
-		UserActionManager(bool store_tracks, G4String prefix = "");
+		UserActionManager(Timer& timer, bool store_tracks, G4String prefix = "");
 		~UserActionManager();
 
 		G4UserSteppingAction * getUserSteppingAction();
@@ -26,6 +27,9 @@ class UserActionManager
 			std::ofstream event_stream;
 			std::ofstream track_stream;
 			bool store_tracks;
+			Timer& timer;
+
+			CommonVariables(Timer& timer_) : timer(timer_) {}
 		};
 
 	private:

@@ -1,5 +1,7 @@
 #include "UserActionManager.hh"
 
+#include "Timer.hh"
+
 #include <G4UserSteppingAction.hh>
 #include <G4UserEventAction.hh>
 #include <G4UserStackingAction.hh>
@@ -63,7 +65,7 @@ class UserTrackInformation : public G4VUserTrackInformation
 
 void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 {
-	G4cout << "EVENT: " << ev->GetEventID() << G4endl;
+	G4cout << "EVENT " << ev->GetEventID() << "      " << pUAI.timer.elapsed() << G4endl;
 	pUAI.evid = ev->GetEventID();
 }
 
@@ -130,7 +132,8 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 //                  UserActionManager implementation
 // ---------------------------------------------------------------------
 
-UserActionManager::UserActionManager(bool store_tracks, G4String prefix)
+UserActionManager::UserActionManager(Timer& timer, bool store_tracks, G4String prefix)
+: pUAI(timer)
 {
 	pUAI.evid = -1;
 	pUAI.event_stream.open((prefix+".csv").c_str());

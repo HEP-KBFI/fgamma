@@ -172,7 +172,7 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy, gunradius, incidence*halfpi));
 	G4cout << "% gunradius " << gunradius/km << " km" << G4endl;
 
-	UserActionManager uam(p_tracks, p_prefix);
+	UserActionManager uam(timer, p_tracks, p_prefix);
 	runManager->SetUserAction(uam.getUserEventAction());
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserStackingAction());
