@@ -63,3 +63,6 @@ target_link_libraries(fgamma ${LIBRARIES})
 # loadmodel test
 add_executable(test-loadmodel tests/loadmodel.cc src/DetectorConstruction.cc)
 target_link_libraries(test-loadmodel ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
+
+# tool: randomint
+add_executable(randomint tools/randomint.cc)
