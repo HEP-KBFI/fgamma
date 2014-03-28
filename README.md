@@ -23,6 +23,7 @@ fgamma
 		  --vis                  open the GUI instead of running the simulation
 
 	 Options for tweaking the physics:
+		  --cutoff=CUT           define an energy cutoff (in GeVs)
 	  -m, --model=MODELFILE      set the YAML file used to model the geometry
 								 (default: model.yml)
 

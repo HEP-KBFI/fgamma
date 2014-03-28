@@ -13,7 +13,7 @@ class Timer;
 class UserActionManager
 {
 	public:
-		UserActionManager(Timer& timer, bool store_tracks, G4String prefix = "");
+		UserActionManager(Timer& timer, bool store_tracks, double cutoff=0.0, G4String prefix = "");
 		~UserActionManager();
 
 		G4UserSteppingAction * getUserSteppingAction();
@@ -28,6 +28,7 @@ class UserActionManager
 			std::ofstream track_stream;
 			bool store_tracks;
 			Timer& timer;
+			double cutoff;
 
 			CommonVariables(Timer& timer_) : timer(timer_) {}
 		};

@@ -83,8 +83,7 @@ G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track
 	                  << "," << tr->GetKineticEnergy()/MeV
 	                  << "," << tr->GetPosition().mag()/km
 	                  << G4endl;
-	//return tr->GetKineticEnergy() < 20*MeV ? fKill : fUrgent;
-	return fUrgent;
+	return tr->GetKineticEnergy() < pUAI.cutoff ? fKill : fUrgent;
 }
 
 void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
@@ -132,12 +131,13 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 //                  UserActionManager implementation
 // ---------------------------------------------------------------------
 
-UserActionManager::UserActionManager(Timer& timer, bool store_tracks, G4String prefix)
+UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cutoff, G4String prefix)
 : pUAI(timer)
 {
 	pUAI.evid = -1;
 	pUAI.event_stream.open((prefix+".csv").c_str());
 	pUAI.store_tracks = store_tracks;
+	pUAI.cutoff = cutoff;
 
 	if(pUAI.store_tracks) {
 		pUAI.track_stream.open((prefix+".tracks.csv").c_str());
