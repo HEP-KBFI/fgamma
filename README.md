@@ -5,6 +5,7 @@ fgamma
 
 * [Geant4](http://geant4.cern.ch/)
 * [yaml-cpp](https://code.google.com/p/yaml-cpp/) (version >0.5)
+* [HDF5 C library](http://www.hdfgroup.org/HDF5/)
 
 **Usage**
 

@@ -1,5 +1,6 @@
 #include "UserActionManager.hh"
 
+#include "HDFWriter.hh"
 #include "Timer.hh"
 
 #include <G4UserSteppingAction.hh>
@@ -71,6 +72,9 @@ void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 
 void UAIUserEventAction::EndOfEventAction(const G4Event*)
 {
+	pUAI.hdf.writeEvent(pUAI.evid, 0, 0, pUAI.ps);
+	pUAI.ps.clear();
+
 	pUAI.evid = -1;
 }
 
@@ -117,6 +121,22 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 	                  << ',' << pdir.x() << ',' << pdir.y() << ',' << pdir.z()
 	                  //<< ',' << pdir.theta() << ',' << pdir.phi()
 	                  << G4endl;
+
+	HDFWriter::particle p;
+	p.eventid = pUAI.evid;
+	p.pid = pid;
+	string_to_cstr(name, p.name, sizeof(p.name));
+	p.m = mass/GeV;
+
+	p.vtx.KE = vertex_KE/GeV;
+	p.vtx.x = vertex.x()/km; p.vtx.y = vertex.y()/km; p.vtx.z = vertex.z()/km;
+	p.vtx.px = vertex_pdir.x(); p.vtx.py = vertex_pdir.y(); p.vtx.pz = vertex_pdir.z();
+
+	p.boundary.KE = vertex_KE/GeV;
+	p.boundary.x = pos.x()/km; p.boundary.y = pos.y()/km; p.boundary.z = pos.z()/km;
+	p.boundary.px = pdir.x(); p.boundary.py = pdir.y(); p.boundary.pz = pdir.z();
+
+	pUAI.ps.push_back(p);
 }
 
 void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
@@ -132,7 +152,7 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 // ---------------------------------------------------------------------
 
 UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cutoff, G4String prefix)
-: pUAI(timer)
+: pUAI(prefix+".h5", timer)
 {
 	pUAI.evid = -1;
 	pUAI.event_stream.open((prefix+".csv").c_str());

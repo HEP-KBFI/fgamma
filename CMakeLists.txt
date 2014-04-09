@@ -26,6 +26,12 @@ endif()
 include(${Geant4_USE_FILE})
 
 #----------------------------------------------------------------------------
+# Load HDF5 library
+# ---
+find_package(HDF5 REQUIRED)
+SET(HDF5_LIBRARIES ${HDF5_LIBRARIES} hdf5_hl)
+
+#----------------------------------------------------------------------------
 # Load the yaml-cpp library
 # ---
 find_package(YamlCpp REQUIRED)
@@ -39,6 +45,7 @@ set(source_files
 	PrimaryGeneratorAction.cc
 	UserActionManager.cc
 	Timer.cc
+	HDFWriter.cc
 )
 
 message(" > Sources...")
@@ -55,7 +62,7 @@ configure_file(${PROJECT_SOURCE_DIR}/models/example.yml ${PROJECT_BINARY_DIR}/mo
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 # ---
-set(LIBRARIES ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
+set(LIBRARIES ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY} ${HDF5_LIBRARIES})
 
 add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})

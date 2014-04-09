@@ -1,8 +1,10 @@
 #ifndef UserActionManager_h
 #define UserActionManager_h
 
+#include "HDFWriter.hh"
 #include <G4String.hh>
 #include <fstream>
+#include <vector>
 
 class G4UserSteppingAction;
 class G4UserEventAction;
@@ -30,7 +32,10 @@ class UserActionManager
 			Timer& timer;
 			double cutoff;
 
-			CommonVariables(Timer& timer_) : timer(timer_) {}
+			HDFWriter hdf;
+			std::vector<HDFWriter::particle> ps;
+
+			CommonVariables(const G4String fname, Timer& timer_) : timer(timer_), hdf(fname) {}
 		};
 
 	private:
