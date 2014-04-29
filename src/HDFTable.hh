@@ -45,7 +45,7 @@ class HDFTable
 
 	public:
 		HDFTable(const hid_t h5group, const std::string &tablename, const std::vector<HDFTableField> &fields, size_t buffered_fields = 1);
-		template<class T> T& bind(const std::string & name);
+		template<class T> T& bind(const std::string & name) const;
 		void write();
 		void flush();
 
@@ -56,12 +56,15 @@ class HDFTable
 };
 
 template<class T>
-T& HDFTable::bind(const std::string & name)
+T& HDFTable::bind(const std::string & name) const
 {
-	if(offset_map.count(name) != 1) {
+	std::map<std::string, size_t>::const_iterator it = offset_map.find(name);
+	if(it == offset_map.end()) {
+		// TODO: DO SOMETHING ABOUT THIS EXCEPTION!!
 		throw(999);
 	}
-	return *((T*)(&data[offset_map[name]]));
+	size_t offset = it->second;
+	return *((T*)(data+offset));
 }
 
 #endif
