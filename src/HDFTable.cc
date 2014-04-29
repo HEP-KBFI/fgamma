@@ -74,7 +74,7 @@ void HDFTable::writeBuffer()
 			"Particles in an event.", group, tname.c_str(),
 			nfields, inbuffer, type_size,
 			field_names, field_offset, field_types,
-			1, 0, H5P_DEFAULT, buffer
+			1000, 0, H5P_DEFAULT, buffer
 		);
 		table_exists = true;
 	}
