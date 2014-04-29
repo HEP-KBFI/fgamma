@@ -30,7 +30,7 @@ class HDFTable
 {
 	const hid_t group;
 	const std::string tname;
-		bool table_exists;
+	bool table_exists;
 
 	std::map<std::string, size_t> offset_map;
 	hsize_t nfields, type_size;
