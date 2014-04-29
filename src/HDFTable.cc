@@ -58,11 +58,7 @@ HDFTable::HDFTable(const hid_t h5group, const std::string &tablename, const std:
 	type_size = offset;
 
 	data = new unsigned char[type_size];
-	if(buffer_size == 1) {
-		buffer = data;
-	} else {
-		buffer = new unsigned char[type_size*buffer_size];
-	}
+	buffer = new unsigned char[type_size*buffer_size];
 }
 
 void HDFTable::writeBuffer()
