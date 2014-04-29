@@ -8,6 +8,9 @@
 #include <map>
 #include <iostream>
 
+void string_to_cstr(const std::string &src, char dst[], size_t target_size);
+hid_t create_hdf5_string(size_t length);
+
 // ---------------------------------------------------------------------
 //                    struct HDFTableField
 // ---------------------------------------------------------------------

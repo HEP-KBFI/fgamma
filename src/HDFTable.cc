@@ -6,6 +6,21 @@
 
 using namespace std;
 
+void string_to_cstr(const std::string &src, char dst[], size_t target_size)
+{
+	src.copy(dst, target_size-1);
+	for(size_t i=src.size(); i<target_size; i++) {
+		dst[i] = '\0';
+	}
+}
+
+hid_t create_hdf5_string(size_t length)
+{
+	hid_t ret = H5Tcopy(H5T_C_S1);
+	H5Tset_size(ret, length);
+	return ret;
+}
+
 // ---------------------------------------------------------------------
 //                    struct HDFTableField
 // ---------------------------------------------------------------------
