@@ -1,7 +1,7 @@
 #ifndef UserActionManager_h
 #define UserActionManager_h
 
-#include "HDFWriter.hh"
+#include "HDFTable.hh"
 #include <G4String.hh>
 #include <fstream>
 #include <vector>
@@ -32,10 +32,27 @@ class UserActionManager
 			Timer& timer;
 			double cutoff;
 
-			HDFWriter hdf;
-			std::vector<HDFWriter::particle> ps;
+			hid_t hdf_file;
+			HDFTable table;
+			struct particle_t
+			{
+				unsigned int & eventid;
+				char (&name)[16];
+				int & pid;
+				double & m;
+				struct kinematics_t {
+					double &KE;
+					double &x, &y, &z;
+					double &px, &py, &pz;
 
-			CommonVariables(const G4String fname, Timer& timer_) : timer(timer_), hdf(fname) {}
+					kinematics_t(const HDFTable &table, const std::string &prefix);
+				} vtx, boundary;
+
+				particle_t(const HDFTable &table);
+			} particle;
+
+			CommonVariables(const G4String fname, Timer& timer_);
+			std::vector<HDFTableField> hdf_fields();
 		};
 
 	private:

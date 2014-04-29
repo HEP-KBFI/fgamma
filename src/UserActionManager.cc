@@ -1,6 +1,5 @@
 #include "UserActionManager.hh"
 
-#include "HDFWriter.hh"
 #include "Timer.hh"
 
 #include <G4UserSteppingAction.hh>
@@ -72,9 +71,6 @@ void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 
 void UAIUserEventAction::EndOfEventAction(const G4Event*)
 {
-	pUAI.hdf.writeEvent(pUAI.evid, 0, 0, pUAI.ps);
-	pUAI.ps.clear();
-
 	pUAI.evid = -1;
 }
 
@@ -122,7 +118,7 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 	                  //<< ',' << pdir.theta() << ',' << pdir.phi()
 	                  << G4endl;
 
-	HDFWriter::particle p;
+	UserActionManager::CommonVariables::particle_t &p = pUAI.particle;
 	p.eventid = pUAI.evid;
 	p.pid = pid;
 	string_to_cstr(name, p.name, sizeof(p.name));
@@ -136,7 +132,7 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 	p.boundary.x = pos.x()/km; p.boundary.y = pos.y()/km; p.boundary.z = pos.z()/km;
 	p.boundary.px = pdir.x(); p.boundary.py = pdir.y(); p.boundary.pz = pdir.z();
 
-	pUAI.ps.push_back(p);
+	pUAI.table.write();
 }
 
 void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
@@ -173,8 +169,55 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
 }
 
+UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer& timer_)
+: timer(timer_),
+  hdf_file(H5Fcreate(fname.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)),
+  table(hdf_file, "particles", hdf_fields(), 500),
+  particle(table)
+{}
+
+UserActionManager::CommonVariables::particle_t::particle_t(const HDFTable &table)
+: eventid(table.bind<unsigned int>("eventid")),
+  name(table.bind<char[16]>("name")),
+  pid(table.bind<int>("pid")),
+  m(table.bind<double>("mass")),
+  vtx(table, "vtx"), boundary(table, "boundary")
+{}
+
+UserActionManager::CommonVariables::particle_t::kinematics_t::kinematics_t(const HDFTable &table, const std::string &prefix)
+: KE(table.bind<double>(prefix+".KE")),
+  x(table.bind<double>(prefix+".x")), y(table.bind<double>(prefix+".y")), z(table.bind<double>(prefix+".z")),
+  px(table.bind<double>(prefix+".px")), py(table.bind<double>(prefix+".py")), pz(table.bind<double>(prefix+".pz"))
+{}
+
+std::vector<HDFTableField> UserActionManager::CommonVariables::hdf_fields()
+{
+	std::vector<HDFTableField> ret;
+	ret.reserve(18);
+	ret.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));
+	ret.push_back(HDFTableField(H5T_NATIVE_INT, "pid"));
+	ret.push_back(HDFTableField(create_hdf5_string(sizeof(particle_t::name)), "name"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "mass"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.KE"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.x"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.y"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.z"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.px"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.py"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.pz"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.KE"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.x"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.y"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.z"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.px"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.py"));
+	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.pz"));
+	return ret;
+}
+
 UserActionManager::~UserActionManager()
 {
+	pUAI.table.flush();
 	pUAI.track_stream.close();
 	pUAI.event_stream.close();
 }

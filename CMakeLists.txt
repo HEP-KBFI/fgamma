@@ -45,7 +45,7 @@ set(source_files
 	PrimaryGeneratorAction.cc
 	UserActionManager.cc
 	Timer.cc
-	HDFWriter.cc
+	HDFTable.cc
 )
 
 message(" > Sources...")
