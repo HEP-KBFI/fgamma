@@ -14,6 +14,8 @@
 
 using namespace CLHEP;
 
+#define STRUCT_SIZEOF(type, member) sizeof(((type *)0)->member)
+
 // ---------------------------------------------------------------------
 //                  Geant4 user action classes
 // ---------------------------------------------------------------------
@@ -196,7 +198,7 @@ std::vector<HDFTableField> UserActionManager::CommonVariables::hdf_fields()
 	ret.reserve(18);
 	ret.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));
 	ret.push_back(HDFTableField(H5T_NATIVE_INT, "pid"));
-	ret.push_back(HDFTableField(create_hdf5_string(sizeof(particle_t::name)), "name"));
+	ret.push_back(HDFTableField(create_hdf5_string(STRUCT_SIZEOF(particle_t,name)), "name"));
 	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "mass"));
 	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.KE"));
 	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.x"));
