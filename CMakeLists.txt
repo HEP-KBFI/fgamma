@@ -28,13 +28,20 @@ include(${Geant4_USE_FILE})
 #----------------------------------------------------------------------------
 # Load HDF5 library
 # ---
-find_package(HDF5 REQUIRED)
-SET(HDF5_LIBRARIES ${HDF5_LIBRARIES} hdf5_hl)
+find_package(HDF5 REQUIRED C HL)
+include_directories(${HDF5_INCLUDE_DIR})
+
+#----------------------------------------------------------------------------
+# Load the Boost library (headers required by yaml-cpp)
+# ---
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
 
 #----------------------------------------------------------------------------
 # Load the yaml-cpp library
 # ---
 find_package(YamlCpp REQUIRED)
+include_directories(${YAMLCPP_INCLUDE_DIR})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
