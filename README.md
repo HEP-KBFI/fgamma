@@ -13,17 +13,16 @@ fgamma
 
 The software uses [CMake](http://www.cmake.org/) to manage the building process.
 
-For Geant4 you need to source the Geant4 environment beforhand. This also
-is needed when running the simulation, because Geant4 uses environment
-variables to find data files.
+For Geant4 you need to source the Geant4 environment beforehand. This is necessary
+for running the simulation as well, because Geant4 uses the environment variables
+to find the data files.
 
 If the other necessary libraries are installed at custom locations, you can
 specify the paths when configuring the build using `-D` flags (`YAMLCPP_DIR` for
 yaml-cpp and `BOOST_ROOT` for Boost).
 
-The `FindHDF5.cmake` script is a bit stuping and you have to specify the
-`HDF5_ROOT` as an environment variable (e.g. doing `HDF5_ROOT=path cmake ...`
-will work.
+The `FindHDF5.cmake` script is a bit stupid and you have to specify the
+`HDF5_ROOT` as an environment variable (e.g. `HDF5_ROOT=path cmake ...`).
 
 In order to have a debug build you can use the standard `CMAKE_BUILD_TYPE`.
 
