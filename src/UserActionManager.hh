@@ -25,6 +25,12 @@ class UserActionManager
 
 		struct CommonVariables
 		{
+			struct hdf_fields_t
+			{
+				std::vector<HDFTableField> particles;
+				hdf_fields_t();
+			} hdf_fields;
+
 			G4int evid;
 			std::ofstream event_stream;
 			std::ofstream track_stream;
@@ -52,7 +58,6 @@ class UserActionManager
 			} particle;
 
 			CommonVariables(const G4String fname, Timer& timer_);
-			std::vector<HDFTableField> hdf_fields();
 		};
 
 	private:

@@ -174,7 +174,7 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer& timer_)
 : timer(timer_),
   hdf_file(H5Fcreate(fname.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)),
-  table(hdf_file, "particles", hdf_fields(), 500),
+  table(hdf_file, "particles", hdf_fields.particles, 500),
   particle(table)
 {}
 
@@ -192,29 +192,27 @@ UserActionManager::CommonVariables::particle_t::kinematics_t::kinematics_t(const
   px(table.bind<double>(prefix+".px")), py(table.bind<double>(prefix+".py")), pz(table.bind<double>(prefix+".pz"))
 {}
 
-std::vector<HDFTableField> UserActionManager::CommonVariables::hdf_fields()
+UserActionManager::CommonVariables::hdf_fields_t::hdf_fields_t()
 {
-	std::vector<HDFTableField> ret;
-	ret.reserve(18);
-	ret.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));
-	ret.push_back(HDFTableField(H5T_NATIVE_INT, "pid"));
-	ret.push_back(HDFTableField(create_hdf5_string(STRUCT_SIZEOF(particle_t,name)), "name"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "mass"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.KE"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.x"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.y"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.z"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.px"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.py"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.pz"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.KE"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.x"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.y"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.z"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.px"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.py"));
-	ret.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.pz"));
-	return ret;
+	particles.reserve(18);
+	particles.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));
+	particles.push_back(HDFTableField(H5T_NATIVE_INT, "pid"));
+	particles.push_back(HDFTableField(create_hdf5_string(STRUCT_SIZEOF(particle_t,name)), "name"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "mass"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.KE"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.x"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.y"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.z"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.px"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.py"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "vtx.pz"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.KE"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.x"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.y"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.z"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.px"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.py"));
+	particles.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "boundary.pz"));
 }
 
 UserActionManager::~UserActionManager()
