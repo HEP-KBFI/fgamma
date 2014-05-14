@@ -27,11 +27,10 @@ class UserActionManager
 		{
 			struct hdf_fields_t
 			{
-				std::vector<HDFTableField> particles;
+				std::vector<HDFTableField> events, particles;
 				hdf_fields_t();
 			} hdf_fields;
 
-			G4int evid;
 			std::ofstream event_stream;
 			std::ofstream track_stream;
 			bool store_tracks;
@@ -39,7 +38,20 @@ class UserActionManager
 			double cutoff;
 
 			hid_t hdf_file;
-			HDFTable table;
+
+			HDFTable hdf_events;
+			struct event_t
+			{
+				unsigned int & id;
+				unsigned int & size;
+				int & pid;
+				double &E, &KE;
+				double & incidence;
+
+				event_t(const HDFTable &table);
+			} event;
+
+			HDFTable hdf_particles;
 			struct particle_t
 			{
 				unsigned int & eventid;

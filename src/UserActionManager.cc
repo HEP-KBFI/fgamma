@@ -1,5 +1,6 @@
 #include "UserActionManager.hh"
 
+#include "UserEventInformation.hh"
 #include "Timer.hh"
 
 #include <G4UserSteppingAction.hh>
@@ -68,17 +69,26 @@ class UserTrackInformation : public G4VUserTrackInformation
 void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 {
 	G4cout << "EVENT " << ev->GetEventID() << "      " << pUAI.timer.elapsed() << G4endl;
-	pUAI.evid = ev->GetEventID();
+
+	pUAI.event.id = ev->GetEventID();
+	pUAI.event.size = 0;
+
+	UserEventInformation * eventinfo = static_cast<UserEventInformation*>(ev->GetUserInformation());
+	//eventinfo->Print();
+	pUAI.event.pid = eventinfo->pid;
+	pUAI.event.E = eventinfo->E;
+	pUAI.event.KE = eventinfo->KE;
+	pUAI.event.incidence = eventinfo->incidence;
 }
 
 void UAIUserEventAction::EndOfEventAction(const G4Event*)
 {
-	pUAI.evid = -1;
+	pUAI.hdf_events.write();
 }
 
 G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track* tr)
 {
-	pUAI.track_stream << pUAI.evid << ","
+	pUAI.track_stream << pUAI.event.id << ","
 	                  << tr->GetParentID() << "," << tr->GetTrackID()
 	                  << "," << tr->GetParticleDefinition()->GetPDGEncoding()
 	                  << "," << tr->GetParticleDefinition()->GetParticleName()
@@ -107,7 +117,7 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 	const G4ThreeVector& pos = step->GetPostStepPoint()->GetPosition();
 	const G4ThreeVector& pdir = step->GetTrack()->GetMomentumDirection();
 
-	pUAI.event_stream << std::setw(5) << pUAI.evid << ',' << std::setw(4) << pid << ',' << std::setw(12) << name
+	pUAI.event_stream << std::setw(5) << pUAI.event.id << ',' << std::setw(4) << pid << ',' << std::setw(12) << name
 	                  << std::scientific << std::setprecision(10)
 	                  << ',' << mass/MeV
 	                  << ',' << vertex_KE/MeV
@@ -121,7 +131,7 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 	                  << G4endl;
 
 	UserActionManager::CommonVariables::particle_t &p = pUAI.particle;
-	p.eventid = pUAI.evid;
+	p.eventid = pUAI.event.id;
 	p.pid = pid;
 	string_to_cstr(name, p.name, sizeof(p.name));
 	p.m = mass/GeV;
@@ -134,7 +144,8 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 	p.boundary.x = pos.x()/km; p.boundary.y = pos.y()/km; p.boundary.z = pos.z()/km;
 	p.boundary.px = pdir.x(); p.boundary.py = pdir.y(); p.boundary.pz = pdir.z();
 
-	pUAI.table.write();
+	pUAI.hdf_particles.write();
+	pUAI.event.size++;
 }
 
 void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
@@ -152,7 +163,7 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cutoff, G4String prefix)
 : pUAI(prefix+".h5", timer)
 {
-	pUAI.evid = -1;
+	pUAI.event.id = -1;
 	pUAI.event_stream.open((prefix+".csv").c_str());
 	pUAI.store_tracks = store_tracks;
 	pUAI.cutoff = cutoff;
@@ -174,8 +185,16 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer& timer_)
 : timer(timer_),
   hdf_file(H5Fcreate(fname.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)),
-  table(hdf_file, "particles", hdf_fields.particles, 500),
-  particle(table)
+  hdf_events(hdf_file, "events", hdf_fields.events, 1), event(hdf_events),
+  hdf_particles(hdf_file, "particles", hdf_fields.particles, 500), particle(hdf_particles)
+{}
+
+UserActionManager::CommonVariables::event_t::event_t(const HDFTable &table)
+: id(table.bind<unsigned int>("eventid")),
+  size(table.bind<unsigned int>("size")),
+  pid(table.bind<int>("pid")),
+  E(table.bind<double>("E")), KE(table.bind<double>("KE")),
+  incidence(table.bind<double>("incidence"))
 {}
 
 UserActionManager::CommonVariables::particle_t::particle_t(const HDFTable &table)
@@ -194,6 +213,14 @@ UserActionManager::CommonVariables::particle_t::kinematics_t::kinematics_t(const
 
 UserActionManager::CommonVariables::hdf_fields_t::hdf_fields_t()
 {
+	events.reserve(5);
+	events.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));
+	events.push_back(HDFTableField(H5T_NATIVE_UINT, "size"));
+	events.push_back(HDFTableField(H5T_NATIVE_INT, "pid"));
+	events.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "E"));
+	events.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "KE"));
+	events.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "incidence"));
+
 	particles.reserve(18);
 	particles.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));
 	particles.push_back(HDFTableField(H5T_NATIVE_INT, "pid"));
@@ -217,7 +244,8 @@ UserActionManager::CommonVariables::hdf_fields_t::hdf_fields_t()
 
 UserActionManager::~UserActionManager()
 {
-	pUAI.table.flush();
+	pUAI.hdf_events.flush();
+	pUAI.hdf_particles.flush();
 	pUAI.track_stream.close();
 	pUAI.event_stream.close();
 }
