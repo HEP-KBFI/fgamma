@@ -21,6 +21,8 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 	private:
 		// data members
 		G4ParticleGun * fPGun; //pointer a to G4 service class
+		int pid_;
+		double E_, incidence;
 };
 
 #endif

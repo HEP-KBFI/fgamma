@@ -50,6 +50,7 @@ include_directories(${YAMLCPP_INCLUDE_DIR})
 set(source_files
 	DetectorConstruction.cc
 	PrimaryGeneratorAction.cc
+	UserEventInformation.cc
 	UserActionManager.cc
 	Timer.cc
 	HDFTable.cc
