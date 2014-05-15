@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-int main(int argc, char* argv[]) {
+int main() {
 	G4Element * e = G4NistManager::Instance()->FindOrBuildElement("O");
 	cout << *e << endl;
 

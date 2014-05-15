@@ -18,7 +18,7 @@ T read_urandom()
 	return u.value;
 }
 
-int main(int argc, char * argv[])
+int main()
 {
 	cout << read_urandom<unsigned int>() << endl;
 }

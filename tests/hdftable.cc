@@ -8,7 +8,7 @@ using namespace std;
 
 const size_t NAME_STRLEN = 16;
 
-int main(int argc, char* argv[])
+int main()
 {
 	vector<HDFTableField> fields;
 	fields.push_back(HDFTableField(H5T_NATIVE_INT, "idx"));
