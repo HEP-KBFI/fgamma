@@ -66,6 +66,9 @@ endforeach(source)
 configure_file(${PROJECT_SOURCE_DIR}/vis.mac ${PROJECT_BINARY_DIR}/vis.mac COPYONLY)
 configure_file(${PROJECT_SOURCE_DIR}/models/example.yml ${PROJECT_BINARY_DIR}/model.yml COPYONLY)
 
+# Use c++11 for the main.cc file, since we're using c++11 features there
+set_source_files_properties(src/configuration.cc PROPERTIES COMPILE_FLAGS -std=c++11)
+
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 # ---
@@ -75,6 +78,9 @@ add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})
 
 # loadmodel test
+add_executable(test-eventconf tests/eventconf.cc src/configuration.cc)
+target_link_libraries(test-eventconf)
+
 add_executable(test-loadmodel tests/loadmodel.cc src/DetectorConstruction.cc)
 target_link_libraries(test-loadmodel ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
 
