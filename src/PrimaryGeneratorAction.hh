@@ -1,18 +1,19 @@
 #ifndef PrimaryGeneratorAction_h
 #define PrimaryGeneratorAction_h
 
+#include "configuration.hh"
+
 #include <globals.hh>
 #include <G4VUserPrimaryGeneratorAction.hh>
+
+#include <vector>
 
 class G4ParticleGun;
 class G4Event;
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 	public:
-		PrimaryGeneratorAction(
-			G4int pid, G4double E, // particle and total energy
-			G4double altitude, G4double incidence_angle
-		);
+		PrimaryGeneratorAction(G4double altitude, const std::vector<eventconf> &events);
 		~PrimaryGeneratorAction();
 
 		// methods
@@ -21,8 +22,8 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 	private:
 		// data members
 		G4ParticleGun * fPGun; //pointer a to G4 service class
-		int pid_;
-		double E_, incidence;
+		std::vector<eventconf> events;
+		size_t eventconf_id, event_id;
 };
 
 #endif

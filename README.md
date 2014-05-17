@@ -30,11 +30,12 @@ In order to have a debug build you can use the standard `CMAKE_BUILD_TYPE`.
 **Usage**
 
 	$ ./fgamma --help
-	Usage: fgamma [OPTION...] ENERGY(GeV) INCIDENCE(pi/2)
+	Usage: fgamma [OPTION...] [EVENT...]
 	Simulation of gamma-rays produced in the atmosphere by cosmic rays.
 
 	 General options:
-	  -n, --runs=N               run the simulation N times
+	  -f, --eventfile=FILE       file with event parameters (each line with
+								 eventconf syntax)
 	  -o, --prefix=PREFIX        set the prefix of the output files
 		  --seed=SEED            set the seed for the random generators; if this is
 								 not specified, time(0) is used)
@@ -56,3 +57,22 @@ In order to have a debug build you can use the standard `CMAKE_BUILD_TYPE`.
 	Mandatory or optional arguments to long options are also mandatory or optional
 	for any corresponding short options.
 
+The parameters of the inital particles in the simulation can be supplied on the
+command line, in a file or both. All non-option arguments on the command line
+are interpreted as event paramters. The `-f` option can be used to define a
+where additional events will be read from (one event per line).
+
+Each event parameter (argument or line) is a comma-separated list of values
+in the form `name=value`. The possible parameters are:
+
+  * **E** or **e** -- energy of the incoming particle (in GeV)
+  * **aoi** -- angle of incidence (real number between 0 and 1,
+    where 0 corresponds to 0 degrees and 1 to 90 degrees; default: 0)
+  * **pid** -- PDG ID of the incoming particle (default: 2212, proton)
+  * **n** -- number of events with these parameters (default: 1)
+
+All parameters except energy have default values and can therefore be omitted.
+
+An example: `./fgamma E=100 E=10,n=25 E=10,pid=11,aoi=0.5`  --
+1 event with 100 GeV proton, 25 events with a 10 GeV proton and an event with
+a 10 GeV electron coming in at a 45 degree angle.

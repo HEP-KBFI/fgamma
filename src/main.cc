@@ -2,6 +2,7 @@
 #include "PrimaryGeneratorAction.hh"
 #include "UserActionManager.hh"
 #include "Timer.hh"
+#include "configuration.hh"
 
 #include "globals.hh"
 #include <G4RunManager.hh>
@@ -12,6 +13,9 @@
 #include <G4UIExecutive.hh>
 #include <G4VisExecutive.hh>
 #include <G4VisExtent.hh>
+
+#include <fstream>
+#include <string>
 
 template<class T>
 T read_urandom()
@@ -52,11 +56,12 @@ const argp_option argp_options[] = {
 		" 1 - a bit (default), 2 - a lot)", 0},
 	{"prefix", 'o', "PREFIX", 0, "set the prefix of the output files", 0},
 	{"vis", PC_VIS, 0, 0, "open the GUI instead of running the simulation", 0},
+	{"eventfile", 'f', "FILE", 0, "file with event parameters"
+		" (each line with eventconf syntax)", 0},
 
 	{"seed", PC_SEED, "SEED", 0,
 		"set the seed for the random generators; if this is not"
 		" specified, time(0) is used)", 0},
-	{"runs", 'n', "N", 0, "run the simulation N times", 0},
 	{"tracks", PC_TRCKS, 0, 0, "store tracks in tracks.txt", 0},
 
 	{0, 0, 0, 0, "Options for tweaking the physics:", 2},
@@ -71,7 +76,7 @@ const argp_option argp_options[] = {
 
 // Parameters
 int p_seed = 0;
-int p_runs = 1;
+G4String p_eventfile = "";
 G4String p_modelfile = "model.yml";
 bool p_tracks = false;
 G4String p_prefix = "fgamma";
@@ -85,8 +90,8 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 		case 'o':
 			p_prefix = arg;
 			break;
-		case 'n':
-			p_runs = std::atoi(arg);
+		case 'f':
+			p_eventfile = arg;
 			break;
 		case 'm':
 			p_modelfile = G4String(arg);
@@ -116,7 +121,7 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 const argp argp_argp = {
 	argp_options,
 	&argp_parser,
-	"ENERGY(GeV) INCIDENCE(pi/2)",
+	"[EVENT...]",
 	"Simulation of gamma-rays produced in the atmosphere by cosmic rays.",
 	0, 0, 0
 };
@@ -128,22 +133,6 @@ int main(int argc, char * argv[]) {
 	int argp_index;
 	argp_parse(&argp_argp, argc, argv, 0, &argp_index, 0);
 
-	// the positional arguments have to be handled manually though
-	if(argc-argp_index != 2) {
-		G4cerr << "ERROR: Wrong number of arguments - got " << argc-argp_index << ", expected 2!" << G4endl;
-		G4cerr << "  argp_index = " << argp_index << ", argc = " << argc << G4endl;
-		for(int i=0; i<argc; i++) {
-			G4cerr << "  argv[" << i << "] = `" << argv[i] << "`" << G4endl;
-		}
-		exit(1);
-	}
-	G4double energy = atof(argv[argp_index])*GeV;
-	G4double incidence = atof(argv[argp_index+1]);
-	if(incidence < 0 || incidence > 1) {
-		G4cerr << "ERROR: Incidence has to be between 0 and 1 (got " << incidence << " from `" << argv[argp_index+1] << "`)" << G4endl;
-		exit(-1);
-	}
-
 	G4cout << "% fgamma" << G4endl;
 
 	// verbosity of Geant4 classes -- let's make sure they dont spam if p_verbosity == 1
@@ -152,14 +141,50 @@ int main(int argc, char * argv[]) {
 	G4cout << "Geant4 verbosity: " << geant_verbosity << G4endl;
 
 	// print the important simulation parameters (prefixed by a % for easy grepping)
-	G4cout << "% energy " << energy/MeV << " MeV" << G4endl;
-	G4cout << "% incidence " << incidence << G4endl;
 	G4cout << "% modelfile " << p_modelfile << G4endl;
 	G4cout << "% prefix " << p_prefix << G4endl;
 	G4cout << "% cutoff " << p_cutoff/MeV << " MeV" << G4endl;
 
 	// print timer start values
 	if(p_verbosity > 1) {G4cout << "timer.start: " << timer.start << G4endl;}
+
+	// we'll parse the event parameters from both arguments and from a file
+	std::vector<eventconf> events;
+	try {
+		for(int i=argp_index; i<argc; i++) {
+			events.push_back(eventconf::parse_string(argv[i]));
+			if(p_verbosity > 1) {G4cout << "CLI(" << (i-argp_index) << "):  " << events.back() << G4endl;}
+		}
+
+		if(p_eventfile.size() > 0) {
+			G4cout << "% eventfile " << p_eventfile << G4endl;
+			std::ifstream fin(p_eventfile);
+			int lineno = 1;
+			for (std::string line; std::getline(fin, line); lineno++) {
+				events.push_back(eventconf::parse_string(line));
+				if(p_verbosity > 1) {G4cout << "file(" << lineno << "): " << events.back() << G4endl;}
+			}
+			fin.close();
+		}
+	} catch(eventconf::parse_error &e) {
+		G4cerr << "ERROR: Bad event parameters: " << e.what() << G4endl;
+		G4cerr << "  evstr: `" << e.evstr << "`, token: `" << e.token << "`" << G4endl;
+		G4cerr << "  argp_index = " << argp_index << ", argc = " << argc << G4endl;
+		for(int i=0; i<argc; i++) {
+			G4cerr << "  argv[" << i << "] = `" << argv[i] << "`" << G4endl;
+		}
+		exit(1);
+	}
+
+	size_t total_events = 0;
+	for(eventconf &ec : events) {
+		total_events += ec.n;
+	}
+	if(total_events == 0) {
+		G4cerr << "ERROR: no events!" << G4endl;
+		exit(1);
+	}
+	G4cout << "% events " << total_events << G4endl;
 
 	// construct the default run manager
 	G4RunManager* runManager = new G4RunManager;
@@ -177,7 +202,7 @@ int main(int argc, char * argv[]) {
 
 	// set user actions
 	G4double gunradius = userDetectorConstruction->getWorldRadius();
-	runManager->SetUserAction(new PrimaryGeneratorAction(2212, energy, gunradius, incidence*halfpi));
+	runManager->SetUserAction(new PrimaryGeneratorAction(gunradius, events));
 	G4cout << "% gunradius " << gunradius/km << " km" << G4endl;
 
 	UserActionManager uam(timer, p_tracks, p_cutoff, p_prefix);
@@ -211,8 +236,7 @@ int main(int argc, char * argv[]) {
 			G4err << "No visualization compiled!" << G4endl;
 		#endif
 	} else {
-		G4cout << "% runs " << p_runs << G4endl;
-		runManager->BeamOn(p_runs);
+		runManager->BeamOn(total_events);
 	}
 
 	// job termination

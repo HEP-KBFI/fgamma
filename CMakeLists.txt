@@ -47,6 +47,7 @@ include_directories(${YAMLCPP_INCLUDE_DIR})
 # NB: headers are included so they will show up in IDEs
 # ---
 set(source_files
+	configuration.cc
 	DetectorConstruction.cc
 	PrimaryGeneratorAction.cc
 	UserEventInformation.cc
@@ -66,7 +67,8 @@ endforeach(source)
 configure_file(${PROJECT_SOURCE_DIR}/vis.mac ${PROJECT_BINARY_DIR}/vis.mac COPYONLY)
 configure_file(${PROJECT_SOURCE_DIR}/models/example.yml ${PROJECT_BINARY_DIR}/model.yml COPYONLY)
 
-# Use c++11 for the main.cc file, since we're using c++11 features there
+# Use c++11 for some files
+set_source_files_properties(src/main.cc PROPERTIES COMPILE_FLAGS -std=c++11)
 set_source_files_properties(src/configuration.cc PROPERTIES COMPILE_FLAGS -std=c++11)
 
 #----------------------------------------------------------------------------
