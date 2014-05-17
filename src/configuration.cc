@@ -7,7 +7,7 @@
 
 using namespace std;
 
-eventconf eventconf::parse_string(const char evstr[])
+eventconf eventconf::parse_string(const std::string &evstr)
 {
 	eventconf ret;
 	ret.pid = 2212;

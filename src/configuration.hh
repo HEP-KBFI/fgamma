@@ -11,7 +11,7 @@ struct eventconf
 	double E, aoi;
 	size_t n;
 
-	static eventconf parse_string(const char evstr[]);
+	static eventconf parse_string(const std::string &evstr);
 
 	struct parse_error : std::exception
 	{
