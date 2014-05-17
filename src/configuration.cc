@@ -10,10 +10,13 @@ using namespace std;
 eventconf eventconf::parse_string(const std::string &evstr)
 {
 	eventconf ret;
-	ret.pid = 2212;
-	ret.n = 1;
 
-	bool isset_E = false, isset_aoi = false;
+	// all except energy have default values:
+	ret.pid = 2212; // proton
+	ret.aoi = 0.0;  // perpendicular to the atmosphere's surface
+	ret.n = 1;      // run one event with these parameters
+
+	bool isset_E = false;
 
 	vector<string> tokens;
 	boost::split(tokens, evstr, boost::is_any_of(","));
@@ -27,7 +30,7 @@ eventconf eventconf::parse_string(const std::string &evstr)
 
 		boost::trim(expr[0]);
 
-		if(expr[0] == "E") {
+		if(expr[0] == "E" || expr[0] == "e") {
 			ret.E = atof(expr[1].c_str()) * CLHEP::GeV;
 			if(ret.E < 0) {
 				throw parse_error("E cannot be negative", evstr, token);
@@ -38,7 +41,6 @@ eventconf eventconf::parse_string(const std::string &evstr)
 			if(ret.aoi < 0 || ret.aoi > 1) {
 				throw parse_error("aoi has to be between 0 and 1", evstr, token);
 			}
-			isset_aoi = true;
 		} else if(expr[0] == "pid") {
 			ret.pid = atoi(expr[1].c_str());
 		} else if(expr[0] == "n") {
@@ -51,8 +53,8 @@ eventconf eventconf::parse_string(const std::string &evstr)
 		}
 	}
 
-	if(!isset_E || !isset_aoi) {
-		throw parse_error("E or aoi not set", evstr);
+	if(!isset_E) {
+		throw parse_error("energy value (E) not set", evstr);
 	}
 
 	return ret;
