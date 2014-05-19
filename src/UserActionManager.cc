@@ -71,6 +71,7 @@ void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 	G4cout << "EVENT " << ev->GetEventID() << "      " << pUAI.timer.elapsed() << G4endl;
 
 	pUAI.event.id = ev->GetEventID();
+	pUAI.event.first = pUAI.hdf_particles.nrows();
 	pUAI.event.size = 0;
 
 	UserEventInformation * eventinfo = static_cast<UserEventInformation*>(ev->GetUserInformation());
@@ -191,6 +192,7 @@ UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer&
 
 UserActionManager::CommonVariables::event_t::event_t(const HDFTable &table)
 : id(table.bind<unsigned int>("eventid")),
+  first(table.bind<unsigned int>("first")),
   size(table.bind<unsigned int>("size")),
   pid(table.bind<int>("pid")),
   E(table.bind<double>("E")), KE(table.bind<double>("KE")),
@@ -215,6 +217,7 @@ UserActionManager::CommonVariables::hdf_fields_t::hdf_fields_t()
 {
 	events.reserve(5);
 	events.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));
+	events.push_back(HDFTableField(H5T_NATIVE_UINT, "first"));
 	events.push_back(HDFTableField(H5T_NATIVE_UINT, "size"));
 	events.push_back(HDFTableField(H5T_NATIVE_INT, "pid"));
 	events.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "E"));

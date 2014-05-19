@@ -43,6 +43,7 @@ class UserActionManager
 			struct event_t
 			{
 				unsigned int & id;
+				unsigned int & first;
 				unsigned int & size;
 				int & pid;
 				double &E, &KE;
