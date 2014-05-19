@@ -45,6 +45,7 @@ class HDFTable
 	public:
 		HDFTable(const hid_t h5group, const std::string &tablename, const std::vector<HDFTableField> &fields, size_t buffered_fields = 1);
 		template<class T> T& bind(const std::string & name) const;
+		template<class T> void setAttribute(hid_t type, const std::string & name, T value);
 		void write();
 		void flush();
 		size_t nrows() const;
@@ -65,6 +66,19 @@ T& HDFTable::bind(const std::string & name) const
 	}
 	size_t offset = it->second;
 	return *((T*)(data+offset));
+}
+
+template<class T>
+void HDFTable::setAttribute(hid_t type, const std::string & name, T value)
+{
+	const hsize_t dims[] = {1};
+	hid_t table = H5Dopen(group, tname.c_str(), H5P_DEFAULT);
+	hid_t sid = H5Screate_simple(1, dims, NULL);
+	hid_t aid = H5Acreate(table, name.c_str(), type, sid, H5P_DEFAULT, H5P_DEFAULT);
+	H5Awrite(aid, type, &value);
+	H5Aclose(aid);
+	H5Sclose(sid);
+	H5Dclose(table);
 }
 
 #endif

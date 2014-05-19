@@ -39,6 +39,7 @@ int main()
 
 	// an empty table too...
 	HDFTable empty_table(group, "empty-table", fields, 1337);
+	empty_table.setAttribute(H5T_NATIVE_DOUBLE, "custom-attribute", 123.456);
 
 	return 0;
 }
