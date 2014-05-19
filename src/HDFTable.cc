@@ -36,7 +36,7 @@ HDFTableField::HDFTableField(const hid_t field_type, const std::string &field_na
 // ---------------------------------------------------------------------
 
 HDFTable::HDFTable(const hid_t h5group, const std::string &tablename, const std::vector<HDFTableField> &fields, size_t buffered_fields)
-: group(h5group), tname(tablename), table_exists(false), nfields(fields.size()),
+: group(h5group), tname(tablename), nfields(fields.size()),
   buffer_size(buffered_fields), inbuffer(0), totalrows(0)
 {
 	field_names  = new const char*[nfields];
@@ -60,25 +60,22 @@ HDFTable::HDFTable(const hid_t h5group, const std::string &tablename, const std:
 
 	data = new unsigned char[type_size];
 	buffer = new unsigned char[type_size*buffer_size];
+
+	H5TBmake_table(
+		"Particles in an event.", group, tname.c_str(),
+		nfields, 0, type_size,
+		field_names, field_offset, field_types,
+		1000, 0, H5P_DEFAULT, 0
+	);
 }
 
 void HDFTable::writeBuffer()
 {
-	if(table_exists) {
-		H5TBappend_records(
-			group, tname.c_str(), inbuffer,
-			type_size, field_offset, field_sizes,
-			buffer
-		);
-	} else {
-		H5TBmake_table(
-			"Particles in an event.", group, tname.c_str(),
-			nfields, inbuffer, type_size,
-			field_names, field_offset, field_types,
-			1000, 0, H5P_DEFAULT, buffer
-		);
-		table_exists = true;
-	}
+	H5TBappend_records(
+		group, tname.c_str(), inbuffer,
+		type_size, field_offset, field_sizes,
+		buffer
+	);
 
 	inbuffer = 0;
 }

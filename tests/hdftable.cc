@@ -37,5 +37,8 @@ int main()
 	}
 	table.flush();
 
+	// an empty table too...
+	HDFTable empty_table(group, "empty-table", fields, 1337);
+
 	return 0;
 }
