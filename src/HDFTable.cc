@@ -36,7 +36,8 @@ HDFTableField::HDFTableField(const hid_t field_type, const std::string &field_na
 // ---------------------------------------------------------------------
 
 HDFTable::HDFTable(const hid_t h5group, const std::string &tablename, const std::vector<HDFTableField> &fields, size_t buffered_fields)
-: group(h5group), tname(tablename), table_exists(false), nfields(fields.size()), buffer_size(buffered_fields), inbuffer(0)
+: group(h5group), tname(tablename), table_exists(false), nfields(fields.size()),
+  buffer_size(buffered_fields), inbuffer(0), totalrows(0)
 {
 	field_names  = new const char*[nfields];
 	field_offset = new size_t[nfields];
@@ -86,6 +87,7 @@ void HDFTable::write()
 {
 	memcpy(buffer+type_size*inbuffer, data, type_size);
 	inbuffer++;
+	totalrows++;
 	if(inbuffer == buffer_size) {
 		writeBuffer();
 	}
@@ -96,4 +98,9 @@ void HDFTable::flush()
 	if(inbuffer > 0) {
 		writeBuffer();
 	}
+}
+
+size_t HDFTable::nrows() const
+{
+	return totalrows;
 }

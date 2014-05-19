@@ -41,13 +41,14 @@ class HDFTable
 
 	unsigned char * data;
 	unsigned char * buffer;
-	size_t buffer_size, inbuffer;
+	size_t buffer_size, inbuffer, totalrows;
 
 	public:
 		HDFTable(const hid_t h5group, const std::string &tablename, const std::vector<HDFTableField> &fields, size_t buffered_fields = 1);
 		template<class T> T& bind(const std::string & name) const;
 		void write();
 		void flush();
+		size_t nrows() const;
 
 	private:
 		HDFTable(const HDFTable&);
