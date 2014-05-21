@@ -114,22 +114,8 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 	const G4ThreeVector& vertex = step->GetTrack()->GetVertexPosition();
 	const G4ThreeVector& vertex_pdir = step->GetTrack()->GetVertexMomentumDirection();
 
-	G4double E = step->GetTrack()->GetTotalEnergy();
 	const G4ThreeVector& pos = step->GetPostStepPoint()->GetPosition();
 	const G4ThreeVector& pdir = step->GetTrack()->GetMomentumDirection();
-
-	pUAI.event_stream << std::setw(5) << pUAI.event.id << ',' << std::setw(4) << pid << ',' << std::setw(12) << name
-	                  << std::scientific << std::setprecision(10)
-	                  << ',' << mass/MeV
-	                  << ',' << vertex_KE/MeV
-	                  << ',' << vertex.x()/km << ',' << vertex.y()/km << ',' << vertex.z()/km
-	                  << ',' << vertex_pdir.x() << ',' << vertex_pdir.y() << ',' << vertex_pdir.z()
-	                  << ',' << E/MeV
-	                  << ',' << pos.x()/km << ',' << pos.y()/km << ',' << pos.z()/km
-	                  //<< ',' << pos.theta() << ',' << pos.phi()
-	                  << ',' << pdir.x() << ',' << pdir.y() << ',' << pdir.z()
-	                  //<< ',' << pdir.theta() << ',' << pdir.phi()
-	                  << G4endl;
 
 	UserActionManager::CommonVariables::particle_t &p = pUAI.particle;
 	p.eventid = pUAI.event.id;
@@ -165,7 +151,6 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 : pUAI(prefix+".h5", timer)
 {
 	pUAI.event.id = -1;
-	pUAI.event_stream.open((prefix+".csv").c_str());
 	pUAI.store_tracks = store_tracks;
 	pUAI.cutoff = cutoff;
 
@@ -179,7 +164,6 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 	userTrackingAction = new UAIUserTrackingAction(pUAI);
 
 	// Write the header of the events CSV file
-	pUAI.event_stream << "event,pid,name,m,vKE,vx,vy,vz,vpx,vpy,vpz,E,x,y,z,px,py,pz" << G4endl;
 	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
 }
 
@@ -255,7 +239,6 @@ UserActionManager::~UserActionManager()
 	pUAI.hdf_events.flush();
 	pUAI.hdf_particles.flush();
 	pUAI.track_stream.close();
-	pUAI.event_stream.close();
 }
 
 G4UserSteppingAction * UserActionManager::getUserSteppingAction()

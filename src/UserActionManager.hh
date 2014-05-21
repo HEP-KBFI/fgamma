@@ -31,7 +31,6 @@ class UserActionManager
 				hdf_fields_t();
 			} hdf_fields;
 
-			std::ofstream event_stream;
 			std::ofstream track_stream;
 			bool store_tracks;
 			Timer& timer;
