@@ -77,8 +77,8 @@ void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 	UserEventInformation * eventinfo = static_cast<UserEventInformation*>(ev->GetUserInformation());
 	//eventinfo->Print();
 	pUAI.event.pid = eventinfo->pid;
-	pUAI.event.E = eventinfo->E;
-	pUAI.event.KE = eventinfo->KE;
+	pUAI.event.E = eventinfo->E/GeV;
+	pUAI.event.KE = eventinfo->KE/GeV;
 	pUAI.event.incidence = eventinfo->incidence;
 }
 
