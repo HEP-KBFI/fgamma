@@ -19,27 +19,34 @@ int main()
 	hid_t file = H5Fcreate("tabletest.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 	hid_t group = H5Gcreate(file, "subgroup", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-	HDFTable table(group, "table-name", fields, 1337);
+	{
+		HDFTable table(group, "table-name", fields, 1337);
 
-	int &idx = table.bind<int>("idx");
-	double &x = table.bind<double>("x");
-	double &y = table.bind<double>("y");
-	char (&name)[] = table.bind<char[]>("name");
+		int &idx = table.bind<int>("idx");
+		double &x = table.bind<double>("x");
+		double &y = table.bind<double>("y");
+		char (&name)[] = table.bind<char[]>("name");
 
-	string_to_cstr(string("  : qwerty;"), name, NAME_STRLEN);
+		string_to_cstr(string("  : qwerty;"), name, NAME_STRLEN);
 
-	for(int i=0; i<10000; i++) {
-		idx = 100000 + i;
-		x = 0.5*i;
-		y = 50*sqrt(i);
-		name[0] = 0x40 + i%50;
-		table.write();
+		for(int i=0; i<10000; i++) {
+			idx = 100000 + i;
+			x = 0.5*i;
+			y = 50*sqrt(i);
+			name[0] = 0x40 + i%50;
+			table.write();
+		}
+		table.flush();
 	}
-	table.flush();
 
 	// an empty table too...
-	HDFTable empty_table(group, "empty-table", fields, 1337);
-	empty_table.setAttribute(H5T_NATIVE_DOUBLE, "custom-attribute", 123.456);
+	{
+		HDFTable table(group, "empty-table", fields, 1337);
+		table.setAttribute(H5T_NATIVE_DOUBLE, "custom-attribute", 123.456);
+	}
+
+	H5Gclose(group);
+	H5Fclose(file);
 
 	return 0;
 }
