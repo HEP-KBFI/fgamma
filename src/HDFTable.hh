@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <stdexcept>
 
 void string_to_cstr(const std::string &src, char dst[], size_t target_size);
 hid_t create_hdf5_string(size_t length);
@@ -59,13 +60,12 @@ class HDFTable
 template<class T>
 T& HDFTable::bind(const std::string & name) const
 {
-	std::map<std::string, size_t>::const_iterator it = offset_map.find(name);
-	if(it == offset_map.end()) {
-		// TODO: DO SOMETHING ABOUT THIS EXCEPTION!!
-		throw(999);
+	try {
+		size_t offset = offset_map.at(name);
+		return *((T*)(data+offset));
+	} catch(const std::out_of_range &e) {
+		throw std::out_of_range("HDFTable::bind(): cannot bind '"+name+"' (field does not exist)");
 	}
-	size_t offset = it->second;
-	return *((T*)(data+offset));
 }
 
 template<class T>

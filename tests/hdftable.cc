@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstring>
 #include <cmath>
+#include <stdexcept>
 
 using namespace std;
 
@@ -43,6 +44,14 @@ int main()
 	{
 		HDFTable table(group, "empty-table", fields, 1337);
 		table.setAttribute(H5T_NATIVE_DOUBLE, "custom-attribute", 123.456);
+	}
+
+	// test bad bind
+	try {
+		HDFTable table(group, "bad-bind", fields, 1337);
+		table.bind<double>("nexists");
+	} catch(const std::out_of_range &e) {
+		cout << "Caught an exception: " << e.what() << endl;
 	}
 
 	H5Gclose(group);
