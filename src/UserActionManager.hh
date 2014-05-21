@@ -71,6 +71,7 @@ class UserActionManager
 			} particle;
 
 			CommonVariables(const G4String fname, Timer& timer_);
+			~CommonVariables();
 		};
 
 	private:

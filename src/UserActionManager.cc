@@ -190,6 +190,11 @@ UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer&
   hdf_particles(hdf_file, "particles", hdf_fields.particles, 500), particle(hdf_particles)
 {}
 
+UserActionManager::CommonVariables::~CommonVariables()
+{
+	H5Fclose(hdf_file);
+}
+
 UserActionManager::CommonVariables::event_t::event_t(const HDFTable &table)
 : id(table.bind<unsigned int>("eventid")),
   first(table.bind<unsigned int>("first")),
