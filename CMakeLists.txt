@@ -88,6 +88,3 @@ target_link_libraries(test-loadmodel ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
 
 add_executable(test-hdftable tests/hdftable.cc src/HDFTable.cc)
 target_link_libraries(test-hdftable ${HDF5_LIBRARIES})
-
-# tool: randomint
-add_executable(randomint tools/randomint.cc)
