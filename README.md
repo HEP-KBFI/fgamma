@@ -59,7 +59,7 @@ In order to have a debug build you can use the standard `CMAKE_BUILD_TYPE`.
 
 The parameters of the inital particles in the simulation can be supplied on the
 command line, in a file or both. All non-option arguments on the command line
-are interpreted as event paramters. The `-f` option can be used to define a
+are interpreted as event paramters. The `-f` option can be used to define a file
 where additional events will be read from (one event per line).
 
 Each event parameter (argument or line) is a comma-separated list of values
