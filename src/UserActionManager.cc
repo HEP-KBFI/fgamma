@@ -137,10 +137,13 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 
 void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 {
-	pUAI.track_stream << " > PostTrack(" << tr->GetTrackID() << "): stepp - " << tr->GetStep() << G4endl;
+	pUAI.track_stream << "PostTrack"
+	                  << "[" << tr << " " << tr->GetTrackID() << "]"
+	                  << " step=" << tr->GetStep();
 	if(tr->GetStep()->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
-		pUAI.track_stream << "   > BOUNDARY!" << G4endl;
+		pUAI.track_stream << " [BOUNDARY]";
 	}
+	pUAI.track_stream << G4endl;
 }
 
 // ---------------------------------------------------------------------
