@@ -8,6 +8,7 @@
 #include <G4UserStackingAction.hh>
 #include <G4UserTrackingAction.hh>
 #include <G4VUserTrackInformation.hh>
+#include <G4VProcess.hh>
 
 #include <G4Event.hh>
 #include <G4Track.hh>
@@ -90,12 +91,13 @@ void UAIUserEventAction::EndOfEventAction(const G4Event*)
 
 G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track* tr)
 {
-	pUAI.track_stream << pUAI.event.id << ","
+	pUAI.track_stream << "CLASSIFY: " << pUAI.event.id << ","
 	                  << tr->GetParentID() << "," << tr->GetTrackID()
 	                  << "," << tr->GetParticleDefinition()->GetPDGEncoding()
 	                  << "," << tr->GetParticleDefinition()->GetParticleName()
 	                  << "," << tr->GetKineticEnergy()/MeV
 	                  << "," << tr->GetPosition().mag()/km
+	                  << "," << (tr->GetCreatorProcess()==nullptr ? "[NO CREATOR]" : tr->GetCreatorProcess()->GetProcessName())
 	                  << G4endl;
 	return fUrgent;
 }
@@ -203,9 +205,6 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 	userEventAction = new UAIUserEventAction(pUAI);
 	userStackingAction = new UAIUserStackingAction(pUAI);
 	userTrackingAction = new UAIUserTrackingAction(pUAI);
-
-	// Write the header of the events CSV file
-	pUAI.track_stream << "event,parentid,trackid,pid,particle,Ekin" << G4endl;
 }
 
 UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer& timer_)
