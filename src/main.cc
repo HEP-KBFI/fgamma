@@ -208,8 +208,11 @@ int main(int argc, char * argv[]) {
 	UserActionManager uam(timer, p_tracks, p_cutoff, p_prefix);
 	runManager->SetUserAction(uam.getUserEventAction());
 	runManager->SetUserAction(uam.getUserSteppingAction());
-	runManager->SetUserAction(uam.getUserStackingAction());
 	runManager->SetUserAction(uam.getUserTrackingAction());
+
+	// Only set the stacking action if we're outputting the tracks, since
+	// ClassifyNewTrack currently only writes to track stream currently
+	if(p_tracks) runManager->SetUserAction(uam.getUserStackingAction());
 
 	// print the table of materials
 	if(p_verbosity>1){G4cout << *(G4Material::GetMaterialTable()) << G4endl;}
