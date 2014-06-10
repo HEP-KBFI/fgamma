@@ -70,6 +70,7 @@ configure_file(${PROJECT_SOURCE_DIR}/models/example.yml ${PROJECT_BINARY_DIR}/mo
 # Use c++11 for some files
 set_source_files_properties(src/main.cc PROPERTIES COMPILE_FLAGS -std=c++11)
 set_source_files_properties(src/configuration.cc PROPERTIES COMPILE_FLAGS -std=c++11)
+set_source_files_properties(src/UserActionManager.cc PROPERTIES COMPILE_FLAGS -std=c++11)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries

@@ -69,6 +69,8 @@ class UserActionManager
 				particle_t(const HDFTable &table);
 			} particle;
 
+			size_t track_approved_secondaries;
+
 			CommonVariables(const G4String fname, Timer& timer_);
 			~CommonVariables();
 		};
