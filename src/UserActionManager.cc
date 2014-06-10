@@ -134,22 +134,36 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 		trv.end()
 	);
 	pUAI.track_approved_secondaries = trv.size();
+}
 
-	//step->GetTrack()->GetParticleDefinition() != G4Gamma::Definition() // check gammas
-	if(step->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
-		return;
-	}
+void UAIUserTrackingAction::PreUserTrackingAction(const G4Track* tr)
+{
+	pUAI.track_stream << "PreTrack " << "[" << tr << " " << tr->GetTrackID() << "]" << G4endl;
+	pUAI.track_approved_secondaries = 0;
+}
 
-	G4int pid = step->GetTrack()->GetParticleDefinition()->GetPDGEncoding();
-	const G4String& name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
-	const G4double& mass = step->GetTrack()->GetDynamicParticle()->GetMass();
+void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
+{
+	bool on_boundary = (tr->GetStep()->GetPostStepPoint()->GetStepStatus() == fWorldBoundary);
 
-	G4double vertex_KE = step->GetTrack()->GetVertexKineticEnergy();
-	const G4ThreeVector& vertex = step->GetTrack()->GetVertexPosition();
-	const G4ThreeVector& vertex_pdir = step->GetTrack()->GetVertexMomentumDirection();
+	pUAI.track_stream << "PostTrack"
+	                  << "[" << tr << " " << tr->GetTrackID() << "]"
+	                  << " step=" << tr->GetStep()
+	                  << (on_boundary ? " [BOUNDARY]" : "")
+	                  << G4endl;
 
-	const G4ThreeVector& pos = step->GetPostStepPoint()->GetPosition();
-	const G4ThreeVector& pdir = step->GetTrack()->GetMomentumDirection();
+	if(!on_boundary) return;
+
+	G4int pid = tr->GetParticleDefinition()->GetPDGEncoding();
+	const G4String& name = tr->GetParticleDefinition()->GetParticleName();
+	const G4double& mass = tr->GetDynamicParticle()->GetMass();
+
+	G4double vertex_KE = tr->GetVertexKineticEnergy();
+	const G4ThreeVector& vertex = tr->GetVertexPosition();
+	const G4ThreeVector& vertex_pdir = tr->GetVertexMomentumDirection();
+
+	const G4ThreeVector& pos = tr->GetStep()->GetPostStepPoint()->GetPosition();
+	const G4ThreeVector& pdir = tr->GetMomentumDirection();
 
 	UserActionManager::CommonVariables::particle_t &p = pUAI.particle;
 	p.eventid = pUAI.event.id;
@@ -167,23 +181,6 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 
 	pUAI.hdf_particles.write();
 	pUAI.event.size++;
-}
-
-void UAIUserTrackingAction::PreUserTrackingAction(const G4Track* tr)
-{
-	pUAI.track_stream << "PreTrack " << "[" << tr << " " << tr->GetTrackID() << "]" << G4endl;
-	pUAI.track_approved_secondaries = 0;
-}
-
-void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
-{
-	pUAI.track_stream << "PostTrack"
-	                  << "[" << tr << " " << tr->GetTrackID() << "]"
-	                  << " step=" << tr->GetStep();
-	if(tr->GetStep()->GetPostStepPoint()->GetStepStatus() != fWorldBoundary) {
-		pUAI.track_stream << " [BOUNDARY]";
-	}
-	pUAI.track_stream << G4endl;
 }
 
 // ---------------------------------------------------------------------
