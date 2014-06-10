@@ -51,6 +51,7 @@ class UAIUserTrackingAction : public G4UserTrackingAction
 	UserActionManager::CommonVariables &pUAI;
 	public:
 		UAIUserTrackingAction(UserActionManager::CommonVariables& uai) : pUAI(uai) {}
+		void PreUserTrackingAction(const G4Track* tr);
 		void PostUserTrackingAction(const G4Track* tr);
 };
 
@@ -133,6 +134,11 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 
 	pUAI.hdf_particles.write();
 	pUAI.event.size++;
+}
+
+void UAIUserTrackingAction::PreUserTrackingAction(const G4Track* tr)
+{
+	pUAI.track_stream << "PreTrack " << "[" << tr << " " << tr->GetTrackID() << "]" << G4endl;
 }
 
 void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
