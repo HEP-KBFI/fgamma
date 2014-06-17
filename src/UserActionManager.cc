@@ -136,6 +136,7 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 
 void UAIUserTrackingAction::PreUserTrackingAction(const G4Track* tr)
 {
+	pUAI.track_stream.flush();
 	pUAI.track_stream << "PreTrack " << "[" << tr << " " << tr->GetTrackID() << "]" << G4endl;
 	pUAI.track_approved_secondaries = 0;
 }
