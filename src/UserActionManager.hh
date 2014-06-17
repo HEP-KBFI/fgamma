@@ -2,6 +2,7 @@
 #define UserActionManager_h
 
 #include "HDFTable.hh"
+#include "TrackingLog.hh"
 #include <G4String.hh>
 #include <fstream>
 #include <vector>
@@ -31,8 +32,7 @@ class UserActionManager
 				hdf_fields_t();
 			} hdf_fields;
 
-			std::ofstream track_stream;
-			bool store_tracks;
+			TrackingLog tracklog;
 			Timer& timer;
 			double cutoff;
 

@@ -89,43 +89,25 @@ void UAIUserEventAction::EndOfEventAction(const G4Event*)
 
 G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track* tr)
 {
-	pUAI.track_stream << "CLASSIFY: " << pUAI.event.id << ","
-	                  << tr->GetParentID() << "," << tr->GetTrackID()
-	                  << "," << tr->GetParticleDefinition()->GetPDGEncoding()
-	                  << "," << tr->GetParticleDefinition()->GetParticleName()
-	                  << "," << tr->GetKineticEnergy()/MeV
-	                  << "," << tr->GetPosition().mag()/km
-	                  << "," << (tr->GetCreatorProcess()==nullptr ? "[NO CREATOR]" : tr->GetCreatorProcess()->GetProcessName())
-	                  << G4endl;
+	pUAI.tracklog.classification(tr);
 	return fUrgent;
 }
 
 void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 {
+	pUAI.tracklog.stepping(step);
 	G4TrackVector &trv = *const_cast<G4Step*>(step)->GetfSecondary();
-	pUAI.track_stream << " . Step[" << step << "]"
-	                  << "(" << step->GetTrack()->GetTrackID() << ") "
-	                  << step->GetTrack()->GetCurrentStepNumber()
-	                  << " secs=" << trv.size()
-	                  << " (&trv=" << &trv << ")"
-	                  << G4endl;
 	trv.erase(
 		remove_if(
 			trv.begin()+pUAI.track_approved_secondaries,
 			trv.end(),
-			[this](G4Track * t){
-				pUAI.track_stream << "     - " << t->GetTrackID()
-					<< "," << t->GetParticleDefinition()->GetPDGEncoding()
-					<< "," << t->GetParticleDefinition()->GetParticleName()
-					<< "," << t->GetKineticEnergy()/MeV
-					<< "," << t->GetPosition().mag()/km
-					<< "," << (t->GetCreatorProcess()==nullptr ? "[NO CREATOR]" : t->GetCreatorProcess()->GetProcessName());
-				if(t->GetKineticEnergy()<pUAI.cutoff) {
-					pUAI.track_stream << " [REMOVED]" << G4endl;
-					delete t;
+			[this](G4Track * track) {
+				bool remove = (track->GetKineticEnergy()<pUAI.cutoff);
+				pUAI.tracklog.stepSecondary(track, remove);
+				if(remove) {
+					delete track;
 					return true;
 				}
-				pUAI.track_stream << G4endl;
 				return false;
 			}
 		),
@@ -136,20 +118,14 @@ void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 
 void UAIUserTrackingAction::PreUserTrackingAction(const G4Track* tr)
 {
-	pUAI.track_stream.flush();
-	pUAI.track_stream << "PreTrack " << "[" << tr << " " << tr->GetTrackID() << "]" << G4endl;
+	pUAI.tracklog.preTracking(tr);
 	pUAI.track_approved_secondaries = 0;
 }
 
 void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 {
 	bool on_boundary = (tr->GetStep()->GetPostStepPoint()->GetStepStatus() == fWorldBoundary);
-
-	pUAI.track_stream << "PostTrack"
-	                  << "[" << tr << " " << tr->GetTrackID() << "]"
-	                  << " step=" << tr->GetStep()
-	                  << (on_boundary ? " [BOUNDARY]" : "")
-	                  << G4endl;
+	pUAI.tracklog.postTracking(tr, on_boundary);
 
 	if(!on_boundary) return;
 
@@ -190,11 +166,10 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 : pUAI(prefix+".h5", timer)
 {
 	pUAI.event.id = -1;
-	pUAI.store_tracks = store_tracks;
 	pUAI.cutoff = cutoff;
 
-	if(pUAI.store_tracks) {
-		pUAI.track_stream.open((prefix+".tracks.csv").c_str());
+	if(store_tracks) {
+		pUAI.tracklog.enable(prefix+".tracks.csv");
 	}
 
 	userSteppingAction = new UAIUserSteppingAction(pUAI);
@@ -274,7 +249,6 @@ UserActionManager::~UserActionManager()
 {
 	pUAI.hdf_events.flush();
 	pUAI.hdf_particles.flush();
-	pUAI.track_stream.close();
 }
 
 G4UserSteppingAction * UserActionManager::getUserSteppingAction()
