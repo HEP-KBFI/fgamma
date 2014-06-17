@@ -5,10 +5,7 @@ Converts a .dat file of the solar composition to a YAML file.
 import re
 import yaml
 from datetime import datetime
-
-# Configuration variables
-cfg_ifname = 'sun_composition.dat'
-cfg_ofname = 'solarmodel.yml'
+import argparse
 
 # Convenience functions
 def component(e, n):
@@ -21,9 +18,14 @@ def isotopes(e, isos):
 	return {'element': e, 'isotopes': isotopes}
 
 if __name__=='__main__':
+	parser = argparse.ArgumentParser(description='Run a run-time measurement.')
+	parser.add_argument('datfile', type=str, help='input .dat file')
+	parser.add_argument('-o', '--output', dest='ofile', type=str, default='model.yml', help='output YAML file')
+	args = parser.parse_args()
+
 	# Read the .dat file
-	print 'Opening the input file:', cfg_ifname
-	fin=open(cfg_ifname)
+	print 'Opening the input file:', args.datfile
+	fin=open(args.datfile)
 
 	# The first three lines are assumed to be the column headers
 	column_matches = []
@@ -102,8 +104,8 @@ if __name__=='__main__':
 	oyaml += "\n"
 	oyaml += yaml.dump(model_layers)
 
-	print 'Writing the model to the output file:', cfg_ofname
-	fout = open(cfg_ofname, 'w')
+	print 'Writing the model to the output file:', args.ofile
+	fout = open(args.ofile, 'w')
 	fout.write(oyaml)
 	fout.close()
 
