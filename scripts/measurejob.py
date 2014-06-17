@@ -15,29 +15,12 @@ def sidefill(string, w=80, char='-'):
 	sw = sw/2 if even else (sw-1)/2
 	return char*sw + ' ' + string + (' ' if even else '  ') + char*sw
 
-class ChildExecutionError(Exception):
-	def __init__(self, err, stdout):
-		self.err = err
-		self.stdout = stdout
-	def __repr__(self):
-		return 'ChildExecutionError: {0}'.format(self.err)
-
 def measure(command, stdout=None):
-	print 'Command:', command
-	p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	print 'Process started, pid = {0}'.format(p.pid)
-	if p.wait() != 0:
-		fgammastdout = p.stdout.read()
-		if stdout is not None:
-			stdout.write(fgammastdout)
-			stdout.flush()
-		raise ChildExecutionError(
-			'returncode ({0}) not 0'.format(p.returncode),
-			fgammastdout
-		)
+	print 'Measure: {0}'.format(command)
+	call_stdout = subprocess.check_output(command, stderr=subprocess.STDOUT)
 
 	ts = []
-	for line in p.stdout:
+	for line in call_stdout.decode().split('\n'):
 		if line.startswith('EVENT') or line.startswith('% done'):
 			ts.append(float(line.split()[4]))
 		if stdout is not None:
@@ -94,11 +77,10 @@ if __name__ == '__main__':
 		cmd = ['./fgamma', 'E={0},aoi={1},n={2}'.format(args.E, args.aoi, n)]+args.ps
 		try:
 			mss.append(measure(cmd, stdout=fgamma_stdout))
-		except ChildExecutionError as e:
-			print 'Error: fgamma failed or something.'
-			print ' >>', e.err
+		except subprocess.CalledProcessError as e:
+			print 'Error: fgamma failed or something (returncode={0})'.format(e.returncode)
 			print sidefill('FGAMMA STDOUT')
-			print e.stdout
+			print e.output
 			print sidefill(None)
 			exit(1)
 		stats = mss_stats(mss)
