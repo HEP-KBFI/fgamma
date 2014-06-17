@@ -103,29 +103,29 @@ G4ClassificationOfNewTrack UAIUserStackingAction::ClassifyNewTrack(const G4Track
 void UAIUserSteppingAction::UserSteppingAction(const G4Step * step)
 {
 	G4TrackVector &trv = *const_cast<G4Step*>(step)->GetfSecondary();
-	/*pUAI.track_stream << " . Step[" << step << "]"
+	pUAI.track_stream << " . Step[" << step << "]"
 	                  << "(" << step->GetTrack()->GetTrackID() << ") "
 	                  << step->GetTrack()->GetCurrentStepNumber()
 	                  << " secs=" << trv.size()
 	                  << " (&trv=" << &trv << ")"
-	                  << G4endl;*/
+	                  << G4endl;
 	trv.erase(
 		remove_if(
 			trv.begin()+pUAI.track_approved_secondaries,
 			trv.end(),
 			[this](G4Track * t){
-				/*pUAI.track_stream << "     - " << t->GetTrackID()
+				pUAI.track_stream << "     - " << t->GetTrackID()
 					<< "," << t->GetParticleDefinition()->GetPDGEncoding()
 					<< "," << t->GetParticleDefinition()->GetParticleName()
 					<< "," << t->GetKineticEnergy()/MeV
 					<< "," << t->GetPosition().mag()/km
-					<< "," << (t->GetCreatorProcess()==nullptr ? "[NO CREATOR]" : t->GetCreatorProcess()->GetProcessName());*/
+					<< "," << (t->GetCreatorProcess()==nullptr ? "[NO CREATOR]" : t->GetCreatorProcess()->GetProcessName());
 				if(t->GetKineticEnergy()<pUAI.cutoff) {
-					//pUAI.track_stream << " [REMOVED]" << G4endl;
+					pUAI.track_stream << " [REMOVED]" << G4endl;
 					delete t;
 					return true;
 				}
-				//pUAI.track_stream << G4endl;
+				pUAI.track_stream << G4endl;
 				return false;
 			}
 		),
