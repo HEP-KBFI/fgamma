@@ -21,6 +21,7 @@ if __name__=='__main__':
 	parser = argparse.ArgumentParser(description='Run a run-time measurement.')
 	parser.add_argument('datfile', type=str, help='input .dat file')
 	parser.add_argument('-o', '--output', dest='ofile', type=str, default='model.yml', help='output YAML file')
+	parser.add_argument('-n', '--layers-top', dest='n', type=int, default=None, help='number of layers, from the top')
 	args = parser.parse_args()
 
 	# Read the .dat file
@@ -97,6 +98,11 @@ if __name__=='__main__':
 
 		model_layers['layers'].append(ly)
 		last_radius = layer['radius']
+
+	if args.n is not None:
+		N = len(model_layers['layers']) - args.n
+		model['startat'] = sum([ly['thickness'] for ly in model_layers['layers'][:N]])
+		model_layers['layers'] = model_layers['layers'][N:]
 
 	print 'Dumping the model into YAML'
 	oyaml  = "# Solar atmosphere\n"
