@@ -9,10 +9,8 @@
 #include <G4UserTrackingAction.hh>
 #include <G4VUserTrackInformation.hh>
 #include <G4VProcess.hh>
-
 #include <G4Event.hh>
 #include <G4Track.hh>
-#include <G4Gamma.hh>
 
 using namespace CLHEP;
 
