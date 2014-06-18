@@ -187,6 +187,9 @@ UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer&
 
 UserActionManager::CommonVariables::~CommonVariables()
 {
+	hdf_events.flush();
+	hdf_particles.flush();
+
 	H5Fclose(hdf_file);
 }
 
