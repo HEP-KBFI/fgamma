@@ -19,6 +19,9 @@ class UserActionManager
 		UserActionManager(Timer& timer, bool store_tracks, double cutoff=0.0, G4String prefix = "");
 		~UserActionManager();
 
+		void writeAttribute(const G4String & name, const double value);
+		void writeAttribute(const G4String & name, const int value);
+
 		G4UserSteppingAction * getUserSteppingAction();
 		G4UserEventAction * getUserEventAction();
 		G4UserStackingAction * getUserStackingAction();

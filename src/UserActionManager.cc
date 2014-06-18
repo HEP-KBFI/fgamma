@@ -254,6 +254,16 @@ UserActionManager::~UserActionManager()
 	pUAI.hdf_particles.flush();
 }
 
+void UserActionManager::writeAttribute(const G4String & name, const double value)
+{
+	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_DOUBLE, name, value);
+}
+
+void UserActionManager::writeAttribute(const G4String & name, const int value)
+{
+	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_INT, name, value);
+}
+
 G4UserSteppingAction * UserActionManager::getUserSteppingAction()
 {
 	return userSteppingAction;
