@@ -12,6 +12,17 @@
 void string_to_cstr(const std::string &src, char dst[], size_t target_size);
 hid_t create_hdf5_string(size_t length);
 
+template<class T>
+void write_hdf5_attribute(const hid_t h5group, const hid_t type, const std::string & name, const T value)
+{
+	const hsize_t dims[] = {1};
+	hid_t sid = H5Screate_simple(1, dims, NULL);
+	hid_t aid = H5Acreate(h5group, name.c_str(), type, sid, H5P_DEFAULT, H5P_DEFAULT);
+	H5Awrite(aid, type, &value);
+	H5Aclose(aid);
+	H5Sclose(sid);
+}
+
 // ---------------------------------------------------------------------
 //                    struct HDFTableField
 // ---------------------------------------------------------------------
