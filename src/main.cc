@@ -210,6 +210,8 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserTrackingAction());
 
+	uam.writeAttribute("gunradius", gunradius/km);
+
 	// Only set the stacking action if we're outputting the tracks, since
 	// ClassifyNewTrack currently only writes to track stream currently
 	if(p_tracks) runManager->SetUserAction(uam.getUserStackingAction());
@@ -221,6 +223,7 @@ int main(int argc, char * argv[]) {
 	p_seed = p_seed==0 ? abs(read_urandom<int>()) : p_seed;
 	G4cout << "% seed " << p_seed << G4endl;
 	CLHEP::HepRandom::setTheSeed(p_seed);
+	uam.writeAttribute("seed", p_seed);
 
 	// initialize G4 kernel
 	runManager->Initialize();

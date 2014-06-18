@@ -176,6 +176,8 @@ UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cut
 	userEventAction = new UAIUserEventAction(pUAI);
 	userStackingAction = new UAIUserStackingAction(pUAI);
 	userTrackingAction = new UAIUserTrackingAction(pUAI);
+
+	writeAttribute("cutoff", cutoff/GeV);
 }
 
 UserActionManager::CommonVariables::CommonVariables(const G4String fname, Timer& timer_)
