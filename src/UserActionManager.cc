@@ -266,6 +266,17 @@ void UserActionManager::writeAttribute(const G4String & name, const int value)
 	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_INT, name, value);
 }
 
+void UserActionManager::writeAttribute(const G4String & name, const G4String & value)
+{
+	const hsize_t dims[] = {1};
+	hid_t type = create_hdf5_string(value.size());
+	hid_t sid = H5Screate_simple(1, dims, NULL);
+	hid_t aid = H5Acreate(pUAI.hdf_file, name.c_str(), type, sid, H5P_DEFAULT, H5P_DEFAULT);
+	H5Awrite(aid, type, value.c_str());
+	H5Aclose(aid);
+	H5Sclose(sid);
+}
+
 G4UserSteppingAction * UserActionManager::getUserSteppingAction()
 {
 	return userSteppingAction;

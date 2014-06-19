@@ -211,6 +211,7 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(uam.getUserTrackingAction());
 
 	uam.writeAttribute("gunradius", gunradius/km);
+	uam.writeAttribute("model_file", p_modelfile);
 
 	// Only set the stacking action if we're outputting the tracks, since
 	// ClassifyNewTrack currently only writes to track stream currently
