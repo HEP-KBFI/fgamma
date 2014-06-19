@@ -6,6 +6,13 @@
 
 using namespace std;
 
+template<> const hid_t H5T<float>::hid = H5T_NATIVE_FLOAT;
+template<> const hid_t H5T<double>::hid = H5T_NATIVE_DOUBLE;
+template<> const hid_t H5T<int>::hid = H5T_NATIVE_INT;
+template<> const hid_t H5T<unsigned int>::hid = H5T_NATIVE_UINT;
+template<> const hid_t H5T<long>::hid = H5T_NATIVE_LONG;
+template<> const hid_t H5T<unsigned long>::hid = H5T_NATIVE_ULONG;
+
 void string_to_cstr(const std::string &src, char dst[], size_t target_size)
 {
 	src.copy(dst, target_size-1);

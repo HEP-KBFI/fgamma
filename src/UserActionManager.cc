@@ -258,17 +258,17 @@ UserActionManager::~UserActionManager()
 
 void UserActionManager::writeAttribute(const G4String & name, const double value)
 {
-	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_DOUBLE, name, value);
+	write_hdf5_attribute(pUAI.hdf_file, name, value);
 }
 
 void UserActionManager::writeAttribute(const G4String & name, const int value)
 {
-	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_INT, name, value);
+	write_hdf5_attribute(pUAI.hdf_file, name, value);
 }
 
 void UserActionManager::writeAttribute(const G4String & name, const unsigned int value)
 {
-	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_UINT, name, value);
+	write_hdf5_attribute(pUAI.hdf_file, name, value);
 }
 
 void UserActionManager::writeAttribute(const G4String & name, const G4String & value)
