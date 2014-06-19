@@ -266,6 +266,11 @@ void UserActionManager::writeAttribute(const G4String & name, const int value)
 	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_INT, name, value);
 }
 
+void UserActionManager::writeAttribute(const G4String & name, const unsigned int value)
+{
+	write_hdf5_attribute(pUAI.hdf_file, H5T_NATIVE_UINT, name, value);
+}
+
 void UserActionManager::writeAttribute(const G4String & name, const G4String & value)
 {
 	const hsize_t dims[] = {1};

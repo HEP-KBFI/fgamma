@@ -16,7 +16,11 @@
 
 #include <fstream>
 #include <string>
+#include <boost/crc.hpp>
 
+// ---------------------------------------------------------------------
+// Helper functions
+// ---------------------------------------------------------------------
 template<class T>
 T read_urandom()
 {
@@ -30,6 +34,26 @@ T read_urandom()
 	rfin.close();
 
 	return u.value;
+}
+
+unsigned int file_crc32(std::string file)
+{
+	boost::crc_32_type crc;
+	std::ifstream fin(file, std::ifstream::binary);
+	if(!fin.good()) {
+		throw std::invalid_argument("Unable to open file: "+file);
+	}
+
+	const size_t buffer_size = 32*1024;
+	char * buffer = new char[buffer_size];
+	while(!fin.fail()) {
+		fin.read(buffer, buffer_size);
+		crc.process_bytes(buffer, fin.gcount());
+	}
+	delete[] buffer;
+	fin.close();
+
+	return crc.checksum();
 }
 
 using namespace CLHEP;
@@ -140,8 +164,13 @@ int main(int argc, char * argv[]) {
 	G4cout << "verbosity: " << p_verbosity << G4endl;
 	G4cout << "Geant4 verbosity: " << geant_verbosity << G4endl;
 
+	// calculate the model's CRC32; if the file is problematic (e.g. does not exists),
+	// the function throws an exception which terminates the program
+	const unsigned int model_crc = file_crc32(p_modelfile);
+
 	// print the important simulation parameters (prefixed by a % for easy grepping)
 	G4cout << "% modelfile " << p_modelfile << G4endl;
+	G4cout << "% model_crc32 " << model_crc << G4endl;
 	G4cout << "% prefix " << p_prefix << G4endl;
 	G4cout << "% cutoff " << p_cutoff/MeV << " MeV" << G4endl;
 
@@ -212,6 +241,7 @@ int main(int argc, char * argv[]) {
 
 	uam.writeAttribute("gunradius", gunradius/km);
 	uam.writeAttribute("model_file", p_modelfile);
+	uam.writeAttribute("model_crc", model_crc);
 
 	// Only set the stacking action if we're outputting the tracks, since
 	// ClassifyNewTrack currently only writes to track stream currently
