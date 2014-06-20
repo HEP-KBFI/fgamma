@@ -68,18 +68,20 @@ class UserTrackInformation : public G4VUserTrackInformation
 
 void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 {
-	G4cout << "EVENT " << ev->GetEventID() << "      " << pUAI.timer.elapsed() << G4endl;
+	UserEventInformation & eventinfo = *static_cast<UserEventInformation*>(ev->GetUserInformation());
+
+	G4cout << "% event " << ev->GetEventID()
+	       << "    " << pUAI.timer.elapsed()
+	       << "    " << eventinfo
+	       << G4endl;
 
 	pUAI.event.id = ev->GetEventID();
 	pUAI.event.first = pUAI.hdf_particles.nrows();
 	pUAI.event.size = 0;
-
-	UserEventInformation * eventinfo = static_cast<UserEventInformation*>(ev->GetUserInformation());
-	//eventinfo->Print();
-	pUAI.event.pid = eventinfo->pid;
-	pUAI.event.E = eventinfo->E/GeV;
-	pUAI.event.KE = eventinfo->KE/GeV;
-	pUAI.event.incidence = eventinfo->incidence;
+	pUAI.event.pid = eventinfo.pid;
+	pUAI.event.E = eventinfo.E/GeV;
+	pUAI.event.KE = eventinfo.KE/GeV;
+	pUAI.event.incidence = eventinfo.incidence;
 }
 
 void UAIUserEventAction::EndOfEventAction(const G4Event*)

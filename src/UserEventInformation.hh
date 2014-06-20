@@ -2,6 +2,7 @@
 #define UserEventInformation_h
 
 #include <G4VUserEventInformation.hh>
+#include <ostream>
 
 struct UserEventInformation : public G4VUserEventInformation
 {
@@ -11,6 +12,6 @@ struct UserEventInformation : public G4VUserEventInformation
 	void Print() const;
 };
 
+std::ostream& operator<< (std::ostream &out, const UserEventInformation &eventinfo);
+
 #endif
-
-

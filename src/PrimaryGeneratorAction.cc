@@ -26,7 +26,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	}
 
 	const eventconf & ec = events[eventconf_id];
-	G4cout << " > " << eventconf_id << ","<< event_id << ": " << ec << G4endl;
+	//G4cout << " > " << eventconf_id << ","<< event_id << ": " << ec << G4endl;
 
 	event_id++;
 	if(event_id >= ec.n) {
