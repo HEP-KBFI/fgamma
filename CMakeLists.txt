@@ -68,11 +68,10 @@ endforeach(source)
 configure_file(${PROJECT_SOURCE_DIR}/vis.mac ${PROJECT_BINARY_DIR}/vis.mac COPYONLY)
 configure_file(${PROJECT_SOURCE_DIR}/models/example.yml ${PROJECT_BINARY_DIR}/model.yml COPYONLY)
 
-# Use c++11 for some files
-set_source_files_properties(src/main.cc PROPERTIES COMPILE_FLAGS -std=c++11)
-set_source_files_properties(src/configuration.cc PROPERTIES COMPILE_FLAGS -std=c++11)
-set_source_files_properties(src/UserActionManager.cc PROPERTIES COMPILE_FLAGS -std=c++11)
-set_source_files_properties(src/TrackingLog.cc PROPERTIES COMPILE_FLAGS -std=c++11)
+#----------------------------------------------------------------------------
+# Use c++11 for all C++ files.
+# ---
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
