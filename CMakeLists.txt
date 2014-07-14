@@ -92,6 +92,10 @@ set(LIBRARIES ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY} ${HDF5_LIBRARIES})
 add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})
 
+# mergeruns tool
+add_executable(mergeruns tools/mergeruns.cc)
+target_link_libraries(mergeruns ${HDF5_LIBRARIES})
+
 # loadmodel test
 add_executable(test-eventconf tests/eventconf.cc src/configuration.cc)
 target_link_libraries(test-eventconf)
