@@ -19,7 +19,10 @@ to find the data files.
 
 If the other necessary libraries are installed at custom locations, you can
 specify the paths when configuring the build using `-D` flags (`YAMLCPP_DIR` for
-yaml-cpp and `BOOST_ROOT` for Boost).
+yaml-cpp and `BOOST_ROOT` for Boost). Since the FindBoost.cmake module seems to
+be a bit crappy, a `Boost_NO_BOOST_CMAKE=ON` is also probably necessary if there
+is an older Boost installed on the system as well (otherwise the module may find
+a wrong version).
 
 The `FindHDF5.cmake` script is a bit stupid and you have to specify the
 `HDF5_ROOT` as an environment variable (e.g. `HDF5_ROOT=path cmake ...`).
