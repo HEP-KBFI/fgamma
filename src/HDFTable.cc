@@ -35,7 +35,7 @@ hid_t create_hdf5_string(size_t length)
 HDFTableField::HDFTableField(const hid_t field_type, const std::string &field_name)
 : type(field_type), name(field_name), size(H5Tget_size(type))
 {
-	cout << "Add field: " << name << " (size: " << size << ", hid: " << type << ")" << endl;
+	//cout << "Add field: " << name << " (size: " << size << ", hid: " << type << ")" << endl;
 }
 
 // ---------------------------------------------------------------------
