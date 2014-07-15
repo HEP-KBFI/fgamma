@@ -86,6 +86,98 @@ void HDFTableInfo::printInfo()
 	}
 }
 
+hid_t create_hdf5_string(size_t length)
+{
+	hid_t ret = H5Tcopy(H5T_C_S1);
+	H5Tset_size(ret, length);
+	return ret;
+}
+
+void string_to_cstr(const std::string &src, char dst[], size_t target_size)
+{
+	src.copy(dst, target_size-1);
+	for(size_t i=src.size(); i<target_size; i++) {
+		dst[i] = '\0';
+	}
+}
+
+struct Run {
+	hsize_t event_first, event_size;
+	hsize_t particle_first, particle_size;
+	char file_path[64];
+	double cutoff, gunradius;
+	int seed;
+	char model_file[32];
+	unsigned int model_crc;
+
+	static const hsize_t nfields = 10;
+	static const char * names[nfields];
+	static const size_t offsets[nfields];
+	static const size_t sizes[nfields];
+	static const hid_t types[nfields];
+};
+const char * Run::names[] = {
+	"event_first", "event_size",
+	"particle_first", "particle_size",
+	"file_path",
+	"cutoff", "gunradius", "seed",
+	"model_file", "model_crc"
+};
+const size_t Run::offsets[] = {
+	HOFFSET(Run, event_first), HOFFSET(Run, event_size),
+	HOFFSET(Run, particle_first), HOFFSET(Run, particle_size),
+	HOFFSET(Run, file_path),
+	HOFFSET(Run, cutoff), HOFFSET(Run, gunradius), HOFFSET(Run, seed),
+	HOFFSET(Run, model_file), HOFFSET(Run, model_crc)
+};
+const size_t Run::sizes[] = {
+	sizeof(Run::event_first), sizeof(Run::event_size),
+	sizeof(Run::particle_first), sizeof(Run::particle_size),
+	sizeof(Run::file_path),
+	sizeof(Run::cutoff), sizeof(Run::gunradius), sizeof(Run::seed),
+	sizeof(Run::model_file), sizeof(Run::model_crc)
+};
+const hid_t Run::types[] = {
+	H5T_NATIVE_HSIZE, H5T_NATIVE_HSIZE,
+	H5T_NATIVE_HSIZE, H5T_NATIVE_HSIZE,
+	create_hdf5_string(sizeof(Run::file_path)),
+	H5T_NATIVE_DOUBLE, H5T_NATIVE_DOUBLE, H5T_NATIVE_INT,
+	create_hdf5_string(sizeof(Run::model_file)), H5T_NATIVE_UINT
+};
+
+template<typename T>
+T hdf_read_attribute(hid_t loc, const string & name, hid_t type)
+{
+	hid_t attr = H5Aopen(loc, name.c_str(), H5P_DEFAULT);
+	if(attr < 0) {
+		throw out_of_range("unable to open attribute ("+name+")");
+	}
+
+	T buf;
+	H5Aread(attr, type, &buf);
+	H5Aclose(attr);
+	return buf;
+}
+
+string hdf_read_attribute_string(hid_t loc, const string & name)
+{
+	hid_t attr = H5Aopen(loc, name.c_str(), H5P_DEFAULT);
+	if(attr < 0) {
+		throw out_of_range("unable to open attribute ("+name+")");
+	}
+
+	hid_t type = H5Aget_type(attr);
+	size_t type_size = H5Tget_size(type);
+	char * buf = new char[type_size+1];
+	H5Aread(attr, type, buf);
+	H5Tclose(type);
+	H5Aclose(attr);
+	buf[type_size] = 0;
+	string ret(buf);
+	delete[] buf;
+	return ret;
+}
+
 int main(int argc, char * argv[])
 {
 	// Check that all the input files exists
@@ -112,6 +204,13 @@ int main(int argc, char * argv[])
 
 	// Create the output file and tables within
 	hid_t fout = H5Fcreate("outfile.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+	{
+		// create the runs table
+		H5TBmake_table("Runs", fout, "runs", Run::nfields,
+			0, sizeof(Run), Run::names, Run::offsets, Run::types,
+			1000, 0, H5P_DEFAULT, 0
+		);
+	}
 	H5TBmake_table("Particles", fout, "particles", particles_info.nfields,
 		0, particles_info.type_size, (const char**)particles_info.field_names,
 		particles_info.field_offsets, particles_info.field_types,
@@ -135,6 +234,29 @@ int main(int argc, char * argv[])
 		hid_t fh = H5Fopen(argv[i], H5F_ACC_RDONLY, H5P_DEFAULT);
 		HDFTableInfo this_events_info(fh, "events");
 		HDFTableInfo this_particles_info(fh, "particles");
+
+		// add the run attributes
+		Run run;
+		run.event_first = event_offset;
+		run.event_size = this_events_info.nrecords;
+		run.particle_first = particle_offset;
+		run.particle_size = this_particles_info.nrecords;
+		string_to_cstr(argv[i], run.file_path, sizeof(Run::file_path));
+		try {
+			string_to_cstr(hdf_read_attribute_string(fh, "model_file"), run.model_file, sizeof(Run::model_file));
+			run.model_crc = hdf_read_attribute<unsigned int>(fh, "model_crc", H5T_NATIVE_UINT);
+			run.seed = hdf_read_attribute<int>(fh, "seed", H5T_NATIVE_INT);
+			run.cutoff = hdf_read_attribute<double>(fh, "cutoff", H5T_NATIVE_DOUBLE);
+			run.gunradius = hdf_read_attribute<double>(fh, "gunradius", H5T_NATIVE_DOUBLE);
+		} catch(out_of_range &e) {
+			cerr << "Error getting attributes: " << e.what() << endl;
+			string_to_cstr("<MERGE ERROR>", run.model_file, sizeof(Run::model_file));
+			run.model_crc = 0;
+			run.seed = 0;
+			run.cutoff = nan("");
+			run.gunradius = nan("");
+		}
+		H5TBappend_records(fout, "runs", 1, sizeof(Run), Run::offsets, Run::sizes, &run);
 
 		{
 			// Copy events to the new file
