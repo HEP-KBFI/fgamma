@@ -262,6 +262,8 @@ int main(int argc, char * argv[])
 			// Copy events to the new file
 			size_t first_idx = this_events_info.findField("first");
 			const size_t first_offset = this_events_info.field_offsets[first_idx];
+			size_t eventid_idx = this_particles_info.findField("eventid");
+			const size_t eventid_offset = this_particles_info.field_offsets[eventid_idx];
 			const size_t type_size = this_events_info.type_size;
 			hsize_t buffered_records = BUFFER_SIZE/type_size;
 			for(hsize_t record=0, delta; record < this_events_info.nrecords; record+=delta) {
@@ -275,6 +277,9 @@ int main(int argc, char * argv[])
 				for(hsize_t j=0; j<delta; j++) {
 					unsigned int & first = *((unsigned int*)(data + j*type_size + first_offset));
 					first += particle_offset;
+
+					unsigned int & eventid = *((unsigned int*)(data + j*type_size + eventid_offset));
+					eventid += event_offset;
 				}
 				// write the buffer
 				H5TBappend_records(fout, "events", delta, this_events_info.type_size,
