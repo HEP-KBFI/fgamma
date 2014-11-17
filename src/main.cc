@@ -14,6 +14,7 @@
 #include <G4VisExecutive.hh>
 #include <G4VisExtent.hh>
 
+#include <ctime>
 #include <fstream>
 #include <string>
 #include <boost/crc.hpp>
@@ -159,6 +160,11 @@ int main(int argc, char * argv[]) {
 
 	G4cout << "% fgamma" << G4endl;
 
+	// get, store and output the program start time
+	std::time_t start_time = std::time(nullptr);
+	G4cout << "Datetime: " << std::asctime(std::localtime(&start_time)); // new newline b/c asctime() adds it already
+	G4cout << "% timestamp " << start_time << G4endl;
+
 	// verbosity of Geant4 classes -- let's make sure they dont spam if p_verbosity == 1
 	int geant_verbosity = p_verbosity==0 ? 0 : p_verbosity-1;
 	G4cout << "verbosity: " << p_verbosity << G4endl;
@@ -239,6 +245,7 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserTrackingAction());
 
+	uam.writeAttribute("timestamp", start_time);
 	uam.writeAttribute("gunradius", gunradius/km);
 	uam.writeAttribute("model_file", p_modelfile);
 	uam.writeAttribute("model_crc", model_crc);
