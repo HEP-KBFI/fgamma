@@ -22,6 +22,8 @@ class UserActionManager
 		void writeAttribute(const G4String & name, const double value);
 		void writeAttribute(const G4String & name, const int value);
 		void writeAttribute(const G4String & name, const unsigned int value);
+		void writeAttribute(const G4String & name, const long value);
+		void writeAttribute(const G4String & name, const unsigned long value);
 		void writeAttribute(const G4String & name, const G4String & value);
 
 		G4UserSteppingAction * getUserSteppingAction();
