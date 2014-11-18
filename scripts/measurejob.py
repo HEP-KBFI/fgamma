@@ -2,10 +2,11 @@
 import os
 import sys
 import time
+import argparse
 import subprocess
 import Queue
+import json
 import numpy
-import argparse
 
 def sidefill(string, w=80, char='-'):
 	if string is None:
@@ -16,15 +17,23 @@ def sidefill(string, w=80, char='-'):
 	return char*sw + ' ' + string + (' ' if even else '  ') + char*sw
 
 def measure(command, stdout=None):
+	"""Measures a single execution of fgamma.
+
+	It uses subprocess to run fgamma, parses its stdout and returns a
+	dictionary of measured event times.
+	"""
 	print 'Measure: {0}'.format(command)
 	call_stdout = subprocess.check_output(command, stderr=subprocess.STDOUT)
 
 	ts = []
 	for line in call_stdout.decode().split('\n'):
-		if line.startswith('EVENT') or line.startswith('% done'):
+		if line.startswith('% event '):
+			splitline = line.split(None,7)
+			ts.append(float(splitline[5]))
+		elif line.startswith('% done'):
 			ts.append(float(line.split()[4]))
 		if stdout is not None:
-			stdout.write(line)
+			stdout.write(line+'\n')
 
 	return {
 		'dts': [t2-t1 for t1,t2 in zip(ts, ts[1:])],
@@ -56,9 +65,12 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Run a run-time measurement.')
 	parser.add_argument('E', type=float)
 	parser.add_argument('aoi', type=float)
-	parser.add_argument('-t', '--target', dest='target', type=float, default=120)
-	parser.add_argument('-n', '--events', dest='n', type=int, default=3, help='number of events on the first run')
+	parser.add_argument('-c', '--cutoff', dest='cutoff', type=float, help='cutoff value')
+	parser.add_argument('-m', '--model', dest='model', type=str, help='model file')
 	parser.add_argument('-p', '--param', dest='ps', type=str, action='append', default=[], help='passed directly to ./fgamma')
+	parser.add_argument('-n', '--events', dest='n', type=int, default=3, help='number of events on the first run')
+	parser.add_argument('-t', '--target', dest='target', type=float, default=120)
+	parser.add_argument('--exec', dest='executable', type=str, default='./fgamma', help='executable')
 	args = parser.parse_args()
 
 	print 'Target time: {0} s'.format(args.target)
@@ -66,19 +78,23 @@ if __name__ == '__main__':
 	start = time.time()
 	elapsed = lambda: time.time() - start
 
-	ns = Queue.Queue()
-	ns.put(args.n)
+	nextn = args.n
 	mss = []
 
 	fgamma_stdout = open('fgamma.stdout.txt', 'w')
 
-	while not ns.empty():
-		n = ns.get()
-		cmd = ['./fgamma', 'E={0},aoi={1},n={2}'.format(args.E, args.aoi, n)]+args.ps
+	while nextn is not None:
+		cmd = [args.executable, 'E={0},aoi={1},n={2}'.format(args.E, args.aoi, nextn)]
+		if args.cutoff is not None:
+			cmd += ['--cutoff={0}'.format(args.cutoff)]
+		if args.model is not None:
+			cmd += ['--model={0}'.format(args.model)]
+		cmd += args.ps
+
 		try:
 			mss.append(measure(cmd, stdout=fgamma_stdout))
 		except subprocess.CalledProcessError as e:
-			print 'Error: fgamma failed or something (returncode={0})'.format(e.returncode)
+			print 'Error: fgamma failed (returncode={0})'.format(e.returncode)
 			print sidefill('FGAMMA STDOUT')
 			print e.output
 			print sidefill(None)
@@ -89,17 +105,30 @@ if __name__ == '__main__':
 		timeleft = args.target - elapsed()
 		maxn = max(int(round((args.target-stats.first.mean)/(10*stats.ev.mean))), 10)
 		nextn = int(round((timeleft-stats.first.mean)/stats.ev.mean))
-		if nextn >= 3:
-			ns.put(min(nextn, maxn))
-			fgamma_stdout.write('+'*80 + '\n')
+		if nextn < 3:
+			break
+		nextn = min(nextn, maxn)
+		fgamma_stdout.write('+'*80 + '\n')
 	print 'Total elapsed:', elapsed()
 	fgamma_stdout.close()
 
-fout = open('results.txt', 'w')
-fout.write('params {0} {1}\n'.format(args.E, args.aoi))
-fout.write('boot {0} {1} {2}\n'.format(stats.first.n, stats.first.mean, stats.first.std))
-fout.write('event {0} {1} {2}\n'.format(stats.ev.n, stats.ev.mean, stats.ev.std))
-for ms in mss:
-	fout.write('run {0} {1} {2}\n'.format(len(ms['dts']), ms['first'], ms['total']))
-	fout.write(format(' '.join([str(it) for it in ms['dts']]))+'\n')
-fout.close()
+with open('results.json', 'w') as fout:
+	json.dump({
+		'params': {
+			'E': args.E,
+			'aoi': args.aoi,
+			'cutoff': args.cutoff
+		},
+		'boot': {
+			'n': stats.first.n,
+			'mean': stats.first.mean,
+			'stdev': stats.first.std
+		},
+		'event': {
+			'n': stats.ev.n,
+			'mean': stats.ev.mean,
+			'stdev': stats.ev.std
+		}
+	}, fout)
+with open('data.json', 'w') as fout:
+	json.dump(mss, fout)
