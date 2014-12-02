@@ -92,20 +92,35 @@ set(LIBRARIES ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY} ${HDF5_LIBRARIES})
 add_executable(fgamma src/main.cc ${sources})
 target_link_libraries(fgamma ${LIBRARIES})
 
-# mergeruns tool
+#----------------------------------------------------------------------------
+# Tools
+# ---
 add_executable(mergeruns tools/mergeruns.cc)
 target_link_libraries(mergeruns ${HDF5_LIBRARIES})
 
-# analyzer tool
 add_executable(analyzer tools/analyzer.cc)
 target_link_libraries(analyzer ${HDF5_LIBRARIES})
 
-# loadmodel test
-add_executable(test-eventconf tests/eventconf.cc src/configuration.cc)
-target_link_libraries(test-eventconf)
+set_target_properties(
+	mergeruns analyzer
+	PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY "tools"
+)
 
-add_executable(test-loadmodel tests/loadmodel.cc src/DetectorConstruction.cc)
-target_link_libraries(test-loadmodel ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
+#----------------------------------------------------------------------------
+# Test targets
+# ---
+add_executable(eventconf tests/eventconf.cc src/configuration.cc)
+target_link_libraries(eventconf)
 
-add_executable(test-hdftable tests/hdftable.cc src/HDFTable.cc)
-target_link_libraries(test-hdftable ${HDF5_LIBRARIES})
+add_executable(loadmodel tests/loadmodel.cc src/DetectorConstruction.cc)
+target_link_libraries(loadmodel ${Geant4_LIBRARIES} ${YAMLCPP_LIBRARY})
+
+add_executable(hdftable tests/hdftable.cc src/HDFTable.cc)
+target_link_libraries(hdftable ${HDF5_LIBRARIES})
+
+set_target_properties(
+	eventconf loadmodel hdftable
+	PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY "tests"
+)
