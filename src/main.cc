@@ -72,6 +72,7 @@ const char* argp_program_version = "fgamma";
 #define PC_TRCKS 1002
 #define PC_VIS   1003
 #define PC_CUT   1004
+#define PC_SPACC 1005
 
 // Program's arguments - an array of option specifiers
 // name, short name, arg. name, flags, doc, group
@@ -92,8 +93,10 @@ const argp_option argp_options[] = {
 	{0, 0, 0, 0, "Options for tweaking the physics:", 2},
 	{"model", 'm', "MODELFILE", 0,
 		"set the YAML file used to model the geometry (default: model.yml)", 2},
-	{"cutoff", PC_CUT, "CUT", 0,
+		{"cutoff", PC_CUT, "CUT", 0,
 		"define an energy cutoff (in GeVs)", 2},
+	{"spaceonly", PC_SPACC, 0, 0,
+		"only accept particles on the outer boundary", 2},
 
 	{0, 0, 0, 0, "Other:", -1},
 	{0, 0, 0, 0, 0, 0} // terminates the array
@@ -108,6 +111,7 @@ G4String p_prefix = "fgamma";
 bool p_vis  = false; // go to visual mode (i.e. open the GUI instead)
 int p_verbosity = 1;
 double p_cutoff = 0.0;
+bool p_acceptinner = true;
 
 // Argument parser callback called by argp
 error_t argp_parser(int key, char *arg, struct argp_state*) {
@@ -135,6 +139,9 @@ error_t argp_parser(int key, char *arg, struct argp_state*) {
 			break;
 		case PC_CUT:
 			p_cutoff = std::atof(arg)*GeV;
+			break;
+		case PC_SPACC:
+			p_acceptinner = false;
 			break;
 		default:
 			return ARGP_ERR_UNKNOWN;
@@ -240,13 +247,18 @@ int main(int argc, char * argv[]) {
 	runManager->SetUserAction(new PrimaryGeneratorAction(gunradius, events));
 	G4cout << "% gunradius " << gunradius/km << " km" << G4endl;
 
-	UserActionManager uam(timer, p_tracks, p_cutoff, p_prefix);
+	// if --spaceonly is set then only accept particles on the outer boundary
+	double acceptradius = p_acceptinner ? nan("") : userDetectorConstruction->getWorldRadius();
+	G4cout << "% acceptradius " << acceptradius/km << " km" << G4endl;
+
+	UserActionManager uam(timer, p_tracks, p_cutoff, p_prefix, acceptradius);
 	runManager->SetUserAction(uam.getUserEventAction());
 	runManager->SetUserAction(uam.getUserSteppingAction());
 	runManager->SetUserAction(uam.getUserTrackingAction());
 
 	uam.writeAttribute("timestamp", start_time);
 	uam.writeAttribute("gunradius", gunradius/km);
+	uam.writeAttribute("acceptradius", acceptradius/km);
 	uam.writeAttribute("model_file", p_modelfile);
 	uam.writeAttribute("model_crc", model_crc);
 

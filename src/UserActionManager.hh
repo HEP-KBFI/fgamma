@@ -16,7 +16,7 @@ class Timer;
 class UserActionManager
 {
 	public:
-		UserActionManager(Timer& timer, bool store_tracks, double cutoff=0.0, G4String prefix = "");
+		UserActionManager(Timer& timer, bool store_tracks, double cutoff=0.0, G4String prefix = "", double acceptradius = nan(""));
 		~UserActionManager();
 
 		void writeAttribute(const G4String & name, const double value);
@@ -41,7 +41,7 @@ class UserActionManager
 
 			TrackingLog tracklog;
 			Timer& timer;
-			double cutoff;
+			double cutoff, acceptradius;
 
 			hid_t hdf_file;
 

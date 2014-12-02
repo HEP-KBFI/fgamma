@@ -156,19 +156,28 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 	p.boundary.x = pos.x()/km; p.boundary.y = pos.y()/km; p.boundary.z = pos.z()/km;
 	p.boundary.px = pdir.x(); p.boundary.py = pdir.y(); p.boundary.pz = pdir.z();
 
-	pUAI.hdf_particles.write();
-	pUAI.event.size++;
+	if(!isnan(pUAI.acceptradius)) {
+		double R = sqrt(pos.x()*pos.x() + pos.y()*pos.y() + pos.z()*pos.z());
+		if(fabs(R-pUAI.acceptradius) < 0.1*km) {
+			pUAI.hdf_particles.write();
+			pUAI.event.size++;
+		}
+	} else {
+		pUAI.hdf_particles.write();
+		pUAI.event.size++;
+	}
 }
 
 // ---------------------------------------------------------------------
 //                  UserActionManager implementation
 // ---------------------------------------------------------------------
 
-UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cutoff, G4String prefix)
+UserActionManager::UserActionManager(Timer& timer, bool store_tracks, double cutoff, G4String prefix, double acceptradius)
 : pUAI(prefix+".h5", timer)
 {
 	pUAI.event.id = -1;
 	pUAI.cutoff = cutoff;
+	pUAI.acceptradius = acceptradius;
 
 	if(store_tracks) {
 		pUAI.tracklog.enable(prefix+".tracks.csv");
