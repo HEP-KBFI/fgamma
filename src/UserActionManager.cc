@@ -82,6 +82,7 @@ void UAIUserEventAction::BeginOfEventAction(const G4Event * ev)
 	pUAI.event.E = eventinfo.E/GeV;
 	pUAI.event.KE = eventinfo.KE/GeV;
 	pUAI.event.incidence = eventinfo.incidence;
+	pUAI.event.discarded = 0;
 }
 
 void UAIUserEventAction::EndOfEventAction(const G4Event*)
@@ -161,6 +162,8 @@ void UAIUserTrackingAction::PostUserTrackingAction(const G4Track* tr)
 		if(fabs(R-pUAI.acceptradius) < 0.1*km) {
 			pUAI.hdf_particles.write();
 			pUAI.event.size++;
+		} else {
+			pUAI.event.discarded++;
 		}
 	} else {
 		pUAI.hdf_particles.write();
@@ -212,7 +215,8 @@ UserActionManager::CommonVariables::event_t::event_t(const HDFTable &table)
   size(table.bind<unsigned int>("size")),
   pid(table.bind<int>("pid")),
   E(table.bind<double>("E")), KE(table.bind<double>("KE")),
-  incidence(table.bind<double>("incidence"))
+  incidence(table.bind<double>("incidence")),
+  discarded(table.bind<unsigned int>("discarded"))
 {}
 
 UserActionManager::CommonVariables::particle_t::particle_t(const HDFTable &table)
@@ -239,6 +243,7 @@ UserActionManager::CommonVariables::hdf_fields_t::hdf_fields_t()
 	events.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "E"));
 	events.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "KE"));
 	events.push_back(HDFTableField(H5T_NATIVE_DOUBLE, "incidence"));
+	events.push_back(HDFTableField(H5T_NATIVE_UINT, "discarded"));
 
 	particles.reserve(18);
 	particles.push_back(HDFTableField(H5T_NATIVE_UINT, "eventid"));

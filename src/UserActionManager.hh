@@ -54,6 +54,7 @@ class UserActionManager
 				int & pid;
 				double &E, &KE;
 				double & incidence;
+				unsigned int & discarded;
 
 				event_t(const HDFTable &table);
 			} event;
