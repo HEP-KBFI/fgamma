@@ -184,7 +184,7 @@ int main(int argc, char * argv[])
 	size_t z_offset = particles_info.field_offsets[particles_info.findField("boundary.z")];
 
 	// 1 MB buffer
-	const size_t BUFFER_SIZE = 1024*1024;
+	const size_t BUFFER_SIZE = 1024*1024*1024;
 	unsigned char * data = new unsigned char[BUFFER_SIZE];
 	hsize_t maxrecords = max<size_t>(1, BUFFER_SIZE/particles_info.type_size);
 
