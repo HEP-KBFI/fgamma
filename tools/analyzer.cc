@@ -192,7 +192,7 @@ int main(int argc, char * argv[])
 
 	for(hsize_t record=0, data_offset=-maxrecords; record<particles_info.nrecords; record++) {
 		if(data_offset+maxrecords == record) {
-			cout << "Loading records: " << record << " (" << double(record)/particles_info.nrecords << "%)" << endl;
+			cout << "Loading records: " << record << " (" << 100*double(record)/particles_info.nrecords << "%)" << endl;
 			H5TBread_records(fh, "particles", record, min(maxrecords, particles_info.nrecords-record),
 				particles_info.type_size, particles_info.field_offsets, particles_info.field_sizes,
 				data
