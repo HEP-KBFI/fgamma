@@ -51,6 +51,7 @@ In order to have a debug build you can use the standard `CMAKE_BUILD_TYPE`.
 	      --cutoff=CUT           define an energy cutoff (in GeVs)
 	  -m, --model=MODELFILE      set the YAML file used to model the geometry
 	                             (default: model.yml)
+	      --spaceonly            only accept particles on the outer boundary
 
 	 Other:
 	  -?, --help                 Give this help list
