@@ -38,23 +38,23 @@ In order to have a debug build you can use the standard `CMAKE_BUILD_TYPE`.
 
 	 General options:
 	  -f, --eventfile=FILE       file with event parameters (each line with
-								 eventconf syntax)
+	                             eventconf syntax)
 	  -o, --prefix=PREFIX        set the prefix of the output files
-		  --seed=SEED            set the seed for the random generators; if this is
-								 not specified, time(0) is used)
-		  --tracks               store tracks in tracks.txt
+	      --seed=SEED            set the seed for the random generators; if this is
+	                             not specified, time(0) is used)
+	      --tracks               store tracks in tracks.txt
 	  -v, --verbosity=LEVEL      set the verbosity level (0 - minimal, 1 - a bit
-								 (default), 2 - a lot)
-		  --vis                  open the GUI instead of running the simulation
+	                             (default), 2 - a lot)
+	      --vis                  open the GUI instead of running the simulation
 
 	 Options for tweaking the physics:
-		  --cutoff=CUT           define an energy cutoff (in GeVs)
+	      --cutoff=CUT           define an energy cutoff (in GeVs)
 	  -m, --model=MODELFILE      set the YAML file used to model the geometry
-								 (default: model.yml)
+	                             (default: model.yml)
 
 	 Other:
 	  -?, --help                 Give this help list
-		  --usage                Give a short usage message
+	      --usage                Give a short usage message
 	  -V, --version              Print program version
 
 	Mandatory or optional arguments to long options are also mandatory or optional
